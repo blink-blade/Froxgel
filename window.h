@@ -8,6 +8,8 @@ using namespace std;
 
 class Window {
 public:
+    GLFWwindow* GLFWWindow;
+    int width, height;
     Window() {
         if (!glfwInit()) {
             throw std::invalid_argument("Failed to initialize GLFW");
@@ -20,6 +22,7 @@ public:
         }
 
         glfwMakeContextCurrent(GLFWWindow);
+        glfwGetWindowSize(GLFWWindow, &width, &height);
 
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
             throw std::invalid_argument("Failed to initialize GLAD");
@@ -44,7 +47,8 @@ public:
 private:
     // utility function for checking shader compilation/linking errors.
     // ------------------------------------------------------------------------
-    GLFWwindow* GLFWWindow;
 };
+
+extern Window window;
 
 #endif

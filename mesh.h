@@ -7,6 +7,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "camera.h"
 #include "shader.h"
 
 using namespace std;
@@ -36,6 +37,14 @@ public:
         numbersPerVertex = std::accumulate(vertexFormatGroups.begin(), vertexFormatGroups.end(), 0);
         vertexCount = vertexData.size() / numbersPerVertex;
         initBuffers();
+    }
+
+    void shaderUniformUpdates() {
+        shader.use();
+        shader.setFloat("time", timeValue);
+        shader.setVec3("cameraPos", camera.Position.x, camera.Position.y, camera.Position.z);
+        shader.setMat4("view", camera.GetViewMatrix());
+        shader.setMat4("projection", projection);
     }
 
     void draw() {

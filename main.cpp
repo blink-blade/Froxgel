@@ -4,25 +4,29 @@
 
 #include <iostream>
 
+#include "camera.h"
+#include "controls.h"
 #include "mesh.h"
 
 using namespace std;
 
 int main() {
-    Window window;
+    engineInits();
     vector<float> vertices {
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-         0.5f, -0.5f, 0.0f, 0.5f, 1.0f,
-         0.0f,  0.5f, 0.0f, 1.0f, 0.0f
+        -500.5f, -500.5f, 0.0f, 0.0f, 0.0f,
+         500.5f, -500.5f, 500.0f, 0.5f, 1.0f,
+         500.0f,  500.5f, 0.0f, 1.0f, 0.0f
     };
     Mesh mesh("vec3 vec2", vertices, "base_tex", "base_tex");
 
     while (!window.shouldClose()) {
+        processInput();
+        timeValue = glfwGetTime();
+
         glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        for (int term : mesh.vertexFormatGroups) {
-            // cout << mesh.numbersPerVertex << endl;
-        }
+        cout << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << endl;
+        mesh.shaderUniformUpdates();
         mesh.draw();
         window.pollEvents();
     }

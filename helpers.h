@@ -2,9 +2,12 @@
 #define HELPERS_H
 #include <bits/stdc++.h>
 #include <vector>
+
+#include "window.h"
 using namespace std;
+extern float timeValue;
 
-vector<string> splitString(string s, char delim);
-
+extern vector<string> splitString(string s, char delim);
+extern void engineInits();
 
 #endif

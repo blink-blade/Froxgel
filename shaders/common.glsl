@@ -1,4 +1,7 @@
 #version 460 core
+uniform mat4 view;
+uniform mat4 projection;
+uniform float time;
 
 mat4 rotationMatrix(float angleX, float angleY, float angleZ) {
     float cX = cos(angleX);
