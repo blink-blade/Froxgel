@@ -1,7 +1,7 @@
 #include "camera.h"
 
 // Default values
-static constexpr float DEFAULT_SPEED = 6.0f;
+float cameraSpeed = 6.0f;
 static constexpr float DEFAULT_SENSITIVITY = 0.1f;
 static constexpr float DEFAULT_FOV = 70.0f;
 float nearPlane = 0.1f;
@@ -9,7 +9,7 @@ float farPlane = 1000000.0f;
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
     : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
-      MovementSpeed(DEFAULT_SPEED),
+      MovementSpeed(cameraSpeed),
       MouseSensitivity(DEFAULT_SENSITIVITY),
       Fov(DEFAULT_FOV)
 {

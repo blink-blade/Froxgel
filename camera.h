@@ -54,6 +54,7 @@ private:
     void UpdateCameraVectors();
 };
 
+extern float cameraSpeed;
 extern Camera camera;
 extern glm::mat4 projection;
 extern float nearPlane;
