@@ -51,4 +51,7 @@ void processInput() {
     if (glfwGetKey(window.GLFWWindow, GLFW_KEY_D) == GLFW_PRESS) {
         camera.ProcessKeyboard(RIGHT, true);
     }
+    if (glfwGetKey(window.GLFWWindow, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        camera.ProcessKeyboard(UP, true);
+    }
 }

@@ -21,6 +21,8 @@ add_executable(Froxgel
         controls.h
         camera.cpp
         window.cpp
+        polygons.cpp
+        polygons.h
 )
 set_source_files_properties(external/glad/src/glad.c PROPERTIES LANGUAGE CXX)
 # Include directories

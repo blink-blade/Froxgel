@@ -50,5 +50,7 @@ void engineInits() {
     // glfwSetScrollCallback(window, scrollCallback);
     glfwSetInputMode(window.GLFWWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window.GLFWWindow, mouseCallback);
+
+    glEnable(GL_DEPTH_TEST);
     // stbi_set_flip_vertically_on_load(true);
 }
