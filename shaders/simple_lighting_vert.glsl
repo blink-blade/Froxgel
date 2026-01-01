@@ -7,8 +7,9 @@ out vec3 FragPos;
 
 void main()
 {
+    mat4 matrix = rotationMatrix(time, 0.0f, 0.0f);
     FragPos = vec3(aPos.x, aPos.y, aPos.z);
-    gl_Position = projection * view * vec4(FragPos, 1.0);
+    gl_Position = projection * view * matrix * vec4(FragPos, 1.0);
     UV = aUV;
     Normal = aNormal;
 }
