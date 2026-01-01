@@ -28,7 +28,7 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos)
 }
 
 void processInput() {
-    cameraSpeed = 6.0f;
+    cameraSpeed = 1.0f;
     if(glfwGetKey(window.GLFWWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window.GLFWWindow, true);
     }

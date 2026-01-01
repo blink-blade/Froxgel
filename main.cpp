@@ -14,19 +14,23 @@ using namespace std;
 
 int main() {
     engineInits();
-    vector<float> vertices = generateGrid(100, 100, 10, 5);
+    vector<float> vertices = generateSphere(1000, 100, 100);
     
 
-    Mesh mesh("vec3 vec2", vertices, "base_tex", "base_tex");
+    Mesh mesh("vec3 vec3 vec2", vertices, "simple_lighting", "simple_lighting");
 
     while (!window.shouldClose()) {
+        // glEnable(GL_CULL_FACE);
+        // glCullFace(GL_FRONT);
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         processInput();
         timeValue = glfwGetTime();
 
         glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        cout << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << endl;
+        // cout << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << endl;
         mesh.shaderUniformUpdates();
         mesh.draw();
         window.pollEvents();
