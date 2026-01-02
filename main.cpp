@@ -20,10 +20,13 @@ int main() {
     Mesh mesh("vec3 vec3 vec2", vertices, "simple_lighting", "simple_lighting");
 
     while (!window.shouldClose()) {
+        glm::mat4 rotationMat(1);
+        rotationMat = glm::rotate(rotationMat, 0.001f, glm::vec3(0.0, 0.0, 1.0));
+        sunDir = glm::vec3(rotationMat * glm::vec4(sunDir, 1.0));;
         // glEnable(GL_CULL_FACE);
         // glCullFace(GL_FRONT);
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         processInput();
         timeValue = glfwGetTime();
 

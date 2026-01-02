@@ -8,6 +8,7 @@
 #include <GLFW/glfw3.h>
 
 #include "camera.h"
+#include "lighting.h"
 #include "shader.h"
 
 using namespace std;
@@ -45,6 +46,10 @@ public:
         shader.setVec3("cameraPos", camera.Position.x, camera.Position.y, camera.Position.z);
         shader.setMat4("view", camera.GetViewMatrix());
         shader.setMat4("projection", projection);
+        shader.setVec3("dirLight.ambient", 0.1f * 1, 0.1f * 1, 0.1f * 1);
+        shader.setVec3("dirLight.diffuse", 0.4f * 2, 0.4f * 2, 0.4f * 2);
+        shader.setVec3("dirLight.specular", 0.5f * 2, 0.5f * 2, 0.5f * 2);
+        shader.setVec3("dirLight.direction", sunDir.x, sunDir.y, sunDir.z);
     }
 
     void draw() {

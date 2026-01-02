@@ -2,6 +2,7 @@
 uniform mat4 view;
 uniform mat4 projection;
 uniform float time;
+uniform vec3 cameraPos;
 
 mat4 rotationMatrix(float angleX, float angleY, float angleZ) {
     float cX = cos(angleX);
@@ -94,3 +95,13 @@ vec2 clipSpaceToTexCoords(vec4 clipSpace) {
     vec2 texCoords = ndc / 2.0 + 0.5;
     return clamp(texCoords, 0.002, 0.998);
 }
+
+struct DirLight {
+    vec3 direction;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+uniform DirLight dirLight;
