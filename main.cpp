@@ -7,8 +7,10 @@
 
 #include "camera.h"
 #include "controls.h"
+#include "filesystem.h"
 #include "mesh.h"
 #include "polygons.h"
+#include "skybox.h"
 
 using namespace std;
 
@@ -18,10 +20,12 @@ int main() {
     
 
     Mesh mesh("vec3 vec3 vec2", vertices, "simple_lighting", "simple_lighting");
+    unsigned int skyboxTexture = loadTexture(FileSystem::getPath("images/cube-mapping-skybox-texture-mapping-three-js-cube.jpg").c_str(), false);
+    Mesh skybox("vec3 vec3 vec2", skyboxVertices, "skybox", "skybox");
 
     while (!window.shouldClose()) {
         glm::mat4 rotationMat(1);
-        rotationMat = glm::rotate(rotationMat, 0.001f, glm::vec3(0.0, 0.0, 1.0));
+        rotationMat = glm::rotate(rotationMat, 0.001f, glm::vec3(0.0, 0.5, 1.0));
         sunDir = glm::vec3(rotationMat * glm::vec4(sunDir, 1.0));;
         // glEnable(GL_CULL_FACE);
         // glCullFace(GL_FRONT);
@@ -33,9 +37,13 @@ int main() {
         glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, skyboxTexture);
         // cout << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << endl;
         mesh.shaderUniformUpdates();
         mesh.draw();
+        skybox.shaderUniformUpdates();
+        skybox.draw();
         window.pollEvents();
     }
 

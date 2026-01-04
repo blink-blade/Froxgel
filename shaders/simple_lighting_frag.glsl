@@ -20,10 +20,10 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     return (ambient + diffuse + specular);
 }
 
-
+uniform sampler2D skyboxTexture;
 void main()
 {
     vec3 viewDir = normalize(cameraPos - FragPos);
     vec3 result = CalcDirLight(dirLight, Normal, viewDir);
-    FragColor = vec4(result, 1.0);
+    FragColor = vec4(vec3(texture(skyboxTexture, UV)), 1.0);
 }

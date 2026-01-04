@@ -25,6 +25,10 @@ add_executable(Froxgel
         polygons.h
         lighting.cpp
         lighting.h
+        skybox.cpp
+        skybox.h
+        stb_image.h
+        filesystem.h
 )
 set_source_files_properties(external/glad/src/glad.c PROPERTIES LANGUAGE CXX)
 # Include directories
