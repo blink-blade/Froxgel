@@ -6,6 +6,11 @@ uniform sampler2D skyboxTexture;
 
 void main()
 {
-    float noiseVal = (layeredNoise3D(FragPos.x, FragPos.y, FragPos.z, 5, 0.001));
-    FragColor = vec4(FragPos.x / 100000 * noiseVal, FragPos.y / 100000 * noiseVal, FragPos.z / 100000 * noiseVal, 1.0);
+    vec3 toCam = normalize(FragPos - cameraPos);
+    float smallTime = time / 10;
+    float noiseVal = (layeredNoise3D(toCam.x + smallTime, toCam.y - smallTime, toCam.z + smallTime, 2, 2));
+    float rval = sin(time * toCam.x);
+    float gval = sin(time * toCam.y);
+    float bval = sin(time * toCam.z);
+    FragColor = vec4(noiseVal * rval / 4, noiseVal * gval, noiseVal * bval, 1.0);
 }
