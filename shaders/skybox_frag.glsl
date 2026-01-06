@@ -6,5 +6,6 @@ uniform sampler2D skyboxTexture;
 
 void main()
 {
-    FragColor = vec4(vec3(texture(skyboxTexture, UV)), 1.0);
+    float noiseVal = abs(layeredNoise3D(FragPos.x, FragPos.y, FragPos.z, 5, 0.0001));
+    FragColor = vec4(FragPos.x / 100000 * noiseVal, FragPos.y / 100000 * noiseVal, FragPos.z / 100000 * noiseVal, 1.0);
 }

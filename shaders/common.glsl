@@ -37,6 +37,24 @@ vec2 randomGradient(float ix, float iy) {
     return vec2(sin(ix * rand(vec2(ix, iy))), cos(iy * rand(vec2(ix, iy))));
 }
 
+float rand3D(vec3 co) {
+    return fract(sin(dot(co, vec3(12.9898, 78.233, 45.164))) * 43758.5453);
+}
+
+vec3 randomGradient3D(float ix, float iy, float iz)
+{
+    float r1 = rand3D(vec3(ix, iy, iz));
+    float r2 = rand3D(vec3(ix + 31.7, iy + 17.3, iz + 47.9));
+
+    float theta = r1 * 6.2831853;
+    float z = r2 * 2.0 - 1.0;
+    float s = sqrt(1.0 - z * z);
+
+    return vec3(s * cos(theta), s * sin(theta), z);
+}
+
+
+
 // Sample Perlin noise at coordinates x, y
 float noise(float x, float y) {
     // Get the corner positions, x0 is left, x1 is left
@@ -77,12 +95,95 @@ float noise(float x, float y) {
     return interpolate(tlTrInterpolation, blBrInterpolation, sy);
 }
 
+// Sample 3D Perlin noise at coordinates x, y, z
+float noise3D(float x, float y, float z)
+{
+    // Integer cube corner coordinates
+    float x0 = floor(x);
+    float y0 = floor(y);
+    float z0 = floor(z);
+    float x1 = x0 + 1.0;
+    float y1 = y0 + 1.0;
+    float z1 = z0 + 1.0;
+
+    // Interpolation weights
+    float sx = x - x0;
+    float sy = y - y0;
+    float sz = z - z0;
+
+    // Corner positions
+    vec3 c000 = vec3(x0, y0, z0);
+    vec3 c100 = vec3(x1, y0, z0);
+    vec3 c010 = vec3(x0, y1, z0);
+    vec3 c110 = vec3(x1, y1, z0);
+    vec3 c001 = vec3(x0, y0, z1);
+    vec3 c101 = vec3(x1, y0, z1);
+    vec3 c011 = vec3(x0, y1, z1);
+    vec3 c111 = vec3(x1, y1, z1);
+
+    // Gradient vectors (must return normalized vec3)
+    vec3 g000 = randomGradient3D(c000.x, c000.y, c000.z);
+    vec3 g100 = randomGradient3D(c100.x, c100.y, c100.z);
+    vec3 g010 = randomGradient3D(c010.x, c010.y, c010.z);
+    vec3 g110 = randomGradient3D(c110.x, c110.y, c110.z);
+    vec3 g001 = randomGradient3D(c001.x, c001.y, c001.z);
+    vec3 g101 = randomGradient3D(c101.x, c101.y, c101.z);
+    vec3 g011 = randomGradient3D(c011.x, c011.y, c011.z);
+    vec3 g111 = randomGradient3D(c111.x, c111.y, c111.z);
+
+    // Distance vectors
+    vec3 d000 = vec3(x, y, z) - c000;
+    vec3 d100 = vec3(x, y, z) - c100;
+    vec3 d010 = vec3(x, y, z) - c010;
+    vec3 d110 = vec3(x, y, z) - c110;
+    vec3 d001 = vec3(x, y, z) - c001;
+    vec3 d101 = vec3(x, y, z) - c101;
+    vec3 d011 = vec3(x, y, z) - c011;
+    vec3 d111 = vec3(x, y, z) - c111;
+
+    // Dot products
+    float n000 = dot(g000, d000);
+    float n100 = dot(g100, d100);
+    float n010 = dot(g010, d010);
+    float n110 = dot(g110, d110);
+    float n001 = dot(g001, d001);
+    float n101 = dot(g101, d101);
+    float n011 = dot(g011, d011);
+    float n111 = dot(g111, d111);
+
+    // Interpolate X
+    float nx00 = interpolate(n000, n100, sx);
+    float nx10 = interpolate(n010, n110, sx);
+    float nx01 = interpolate(n001, n101, sx);
+    float nx11 = interpolate(n011, n111, sx);
+
+    // Interpolate Y
+    float nxy0 = interpolate(nx00, nx10, sy);
+    float nxy1 = interpolate(nx01, nx11, sy);
+
+    // Interpolate Z
+    return interpolate(nxy0, nxy1, sz);
+}
+
+
 float layeredNoise(float x, float y, int layerAmount, float frequency) {
     float amp = 1;
     float val = 0;
     float freq = frequency;
     for (int i = 0; i < layerAmount; i++) {
         val += noise(x * freq, y * freq) * amp;
+        freq *= 2;
+        amp /= 2;
+    }
+    return val;
+}
+
+float layeredNoise3D(float x, float y, float z, int layerAmount, float frequency) {
+    float amp = 1;
+    float val = 0;
+    float freq = frequency;
+    for (int i = 0; i < layerAmount; i++) {
+        val += noise3D(x * freq, y * freq, z * freq) * amp;
         freq *= 2;
         amp /= 2;
     }
