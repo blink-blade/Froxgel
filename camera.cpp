@@ -3,7 +3,7 @@
 // Default values
 float cameraSpeed = 6.0f;
 static constexpr float DEFAULT_SENSITIVITY = 0.1f;
-static constexpr float DEFAULT_FOV = 70.0f;
+static constexpr float DEFAULT_FOV = 90.0f;
 float nearPlane = 0.1f;
 float farPlane = 1000000.0f;
 

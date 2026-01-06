@@ -20,7 +20,7 @@ int main() {
     
 
     Mesh mesh("vec3 vec3 vec2", vertices, "simple_lighting", "simple_lighting");
-    unsigned int skyboxTexture = loadTexture(FileSystem::getPath("images/StandardCubeMap.png").c_str(), true);
+    unsigned int skyboxTexture = loadTexture(FileSystem::getPath("images/mainSB.png").c_str(), true);
     Mesh skybox("vec3 vec3 vec2", skyboxVertices, "skybox", "skybox");
 
     while (!window.shouldClose()) {
