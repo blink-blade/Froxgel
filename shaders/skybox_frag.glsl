@@ -8,9 +8,7 @@ void main()
 {
     vec3 toCam = normalize(FragPos - cameraPos);
     float smallTime = time / 10;
-    float noiseVal = (layeredNoise3D(toCam.x + smallTime, toCam.y - smallTime, toCam.z + smallTime, 2, 2));
+    float noiseVal = (layeredNoise3D(toCam.x + smallTime, toCam.y - smallTime, toCam.z + smallTime, 2, sin(time) * 4));
     float rval = sin(time * toCam.x);
-    float gval = sin(time * toCam.y);
-    float bval = sin(time * toCam.z);
-    FragColor = vec4(noiseVal * rval / 4, noiseVal * gval, noiseVal * bval, 1.0);
+    FragColor = vec4(noiseVal * rval / 4, noiseVal, noiseVal, 1.0);
 }
