@@ -9,12 +9,12 @@ void main()
     vec3 toCam = normalize(FragPos - cameraPos);
     float smallTime = time / 10;
     float smallerTime = time / 25;
-    float noise = layeredNoise3D(toCam.x, toCam.y, toCam.z, 5, 1);
+    float noise = layeredNoise3D(toCam.x, toCam.y, toCam.z, 15, 5);
 
-    float val = sin(noise * 6.28318);
+    vec3 p2 = toCam + noise * 0.5;
+    float val = layeredNoise3D(p2.x, p2.y, p2.z, 5, 1);
 
-    float hue = fract(val * 0.3 + (time + 65) * 0.01);
-    vec3 color = hsv2rgb(vec3(hue, 0.7, 1.0)) * 1;
+    vec3 color = vec3(abs(val), val, abs(val));
 
     FragColor = vec4(color, 1.0);
 }
