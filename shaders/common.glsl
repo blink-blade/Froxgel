@@ -178,12 +178,25 @@ float layeredNoise(float x, float y, int layerAmount, float frequency) {
     return val;
 }
 
+
 float layeredNoise3D(float x, float y, float z, int layerAmount, float frequency) {
     float amp = 1;
     float val = 0;
     float freq = frequency;
     for (int i = 0; i < layerAmount; i++) {
         val += noise3D(x * freq, y * freq, z * freq) * amp;
+        freq *= 2;
+        amp /= 2;
+    }
+    return val;
+}
+
+float layeredNoise3D(vec3 p, int layerAmount, float frequency) {
+    float amp = 1;
+    float val = 0;
+    float freq = frequency;
+    for (int i = 0; i < layerAmount; i++) {
+        val += noise3D(p.x * freq, p.y * freq, p.z * freq) * amp;
         freq *= 2;
         amp /= 2;
     }
