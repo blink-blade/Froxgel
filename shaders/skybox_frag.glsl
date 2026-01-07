@@ -10,9 +10,9 @@ void main()
     float smallTime = time / 10;
     float smallerTime = time / 25;
     float noise = layeredNoise3D(toCam.x, toCam.y, toCam.z, 15, 5);
-    float cracks = abs(fract(noise * 4.0) - 0.5);
+    float pulse = sin(noise * 5.0 + time);
 
-    vec3 color = vec3(abs(cracks), cracks, abs(cracks));
+    vec3 color = vec3(abs(pulse), pulse, abs(pulse));
 
     FragColor = vec4(color, 1.0);
 }
