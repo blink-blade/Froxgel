@@ -9,4 +9,5 @@ extern float timeValue;
 extern vector<string> splitString(string s, char delim);
 extern void engineInits();
 extern unsigned int loadTexture(char const * path, bool linearFiltering);
+extern void engineUpdates();
 #endif

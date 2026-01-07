@@ -62,6 +62,11 @@ void engineInits() {
     stbi_set_flip_vertically_on_load(true);
 }
 
+void engineUpdates() {
+    timeValue = glfwGetTime();
+    processInput();
+}
+
 unsigned int loadTexture(char const * path, bool linearFiltering = false) {
     unsigned int textureID;
     glGenTextures(1, &textureID);

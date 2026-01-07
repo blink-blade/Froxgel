@@ -31,8 +31,7 @@ int main() {
         // glCullFace(GL_FRONT);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        processInput();
-        timeValue = glfwGetTime();
+        engineUpdates();
 
         glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
