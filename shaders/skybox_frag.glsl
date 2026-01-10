@@ -12,6 +12,14 @@ vec3 getCracksColor(float noise) {
     return vec3(abs(cracks), cracks, abs(cracks));
 }
 
+vec3 getGradientColor(float mixer) {
+    vec3 horizon = vec3(0.0, 0.0, 0.25);
+    vec3 zenith  = vec3(0.1, 0.2, 0.6);
+
+    return mix(horizon, zenith, smoothstep(0.0, 1.0, mixer
+    ));
+}
+
 void main()
 {
     toCam = normalize(FragPos - cameraPos);
@@ -27,10 +35,7 @@ void main()
 
     // Do a fancy formula to make the sky change color the higher it is.
     float h = toCam.y * 0.5 + 0.5;
-    vec3 horizon = vec3(0.0, 0.0, 0.25);
-    vec3 zenith  = vec3(0.1, 0.2, 0.6);
-
-    vec3 gradient = mix(horizon, zenith, smoothstep(0.0, 1.0, h));
+    vec3 gradient = getGradientColor(h);
 
     // Mix the gradient with the nebula.
     vec3 gradientWithNebula = mix(gradient, nebula, 1.3 * h);
