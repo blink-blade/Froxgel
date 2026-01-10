@@ -6,8 +6,7 @@ uniform sampler2D skyboxTexture;
 
 vec3 toCam;
 
-vec3 getCracksColor() {
-    float noise = layeredNoise3D(toCam.x, toCam.y, toCam.z, 3, 2);
+vec3 getCracksColor(float noise) {
     float cracks = abs(fract(noise * 4.0) - 0.5);
 
     return vec3(abs(cracks), cracks, abs(cracks));
@@ -19,9 +18,10 @@ void main()
     float sinTime = sin(time / 3);
 
     // Get the main nebula color.
+    float noise = layeredNoise3D(toCam + vec3(0.0, 0.1, 0.0) * sinTime, 3, 2);
     vec3 nebula = vec3(
     layeredNoise3D(toCam + vec3(0.1, 0.0, 0.0) * sinTime, 4, 2),
-    layeredNoise3D(toCam + vec3(0.0, 0.1, 0.0) * sinTime, 3, 2),
+    noise,
     layeredNoise3D(toCam + vec3(0.0, 0.0, 0.1) * sinTime, 2, 2)
     );
 
@@ -36,7 +36,7 @@ void main()
     vec3 gradientWithNebula = mix(gradient, nebula, 1.3 * h);
 
     // Get the ridge color.
-    vec3 cracks = getCracksColor() * vec3(0.2, 0.25, 0.3);
+    vec3 cracks = getCracksColor(noise) * vec3(0.2, 0.25, 0.3);
 
     vec3 finalColor = gradientWithNebula * 2 + cracks;
     FragColor = vec4(finalColor, 1.0);
