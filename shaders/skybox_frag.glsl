@@ -25,8 +25,6 @@ void main()
     layeredNoise3D(toCam + vec3(0.0, 0.0, 0.1) * sinTime, 2, 2)
     );
 
-    float noise = layeredNoise3D(toCam, 12, 2);
-
     // Do a fancy formula to make the sky change color the higher it is.
     float h = toCam.y * 0.5 + 0.5;
     vec3 horizon = vec3(0.0, 0.0, 0.25);
@@ -36,13 +34,6 @@ void main()
 
     // Mix the gradient with the nebula.
     vec3 gradientWithNebula = mix(gradient, nebula, 1.3 * h);
-
-    // Make some noise to add some more texture to it.
-    vec3 additiveNoiseColor = vec3(layeredNoise3D(toCam.x, toCam.y, toCam.z, 2, 5) + vec3(0.1, 0.1, 0.0) * sinTime);
-    additiveNoiseColor *= vec3(0.1, 0.25, 0.15) + (sinTime - 0.5) * 0.5;
-
-    // Add the noise to the final color.
-    gradientWithNebula += additiveNoiseColor;
 
     // Get the ridge color.
     vec3 cracks = getCracksColor() * vec3(0.2, 0.25, 0.3);
