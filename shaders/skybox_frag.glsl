@@ -15,7 +15,7 @@ vec3 getCracksColor(float noise) {
 void main()
 {
     toCam = normalize(FragPos - cameraPos);
-    float sinTime = sin(time / 3);
+    float sinTime = sin(time * 0.07);
 
     // Get the main nebula color.
     float noise = layeredNoise3D(toCam + vec3(0.0, 0.1, 0.0) * sinTime, 3, 2);
