@@ -7,28 +7,39 @@ uniform sampler2D skyboxTexture;
 void main()
 {
     vec3 toCam = normalize(FragPos - cameraPos);
-    float smallTime = time / 10;
+    float smallTime = sin(time / 2);
     float smallerTime = time / 25;
 
-    vec3 flow = vec3(
-    layeredNoise3D(toCam + vec3(0.1, 0.0, 0.0), 4, 2),
-    layeredNoise3D(toCam + vec3(0.0, 0.1, 0.0), 3, 2),
-    layeredNoise3D(toCam + vec3(0.0, 0.0, 0.1), 2, 2)
+    // Get the main nebula color.
+
+    vec3 nebula = vec3(
+    layeredNoise3D(toCam + vec3(0.1, 0.0, 0.0) * smallTime, 4, 2),
+    layeredNoise3D(toCam + vec3(0.0, 0.1, 0.0) * smallTime, 3, 2),
+    layeredNoise3D(toCam + vec3(0.0, 0.0, 0.1) * smallTime, 2, 2)
     );
-    float noise = layeredNoise3D(toCam.x, toCam.y, toCam.z, 12, 2);
-    float steps = 25.0;
+
+    // Make terraced noise for the sky gradient, because why not?
+    float noise = layeredNoise3D(toCam, 12, 2);
+    float steps = 7.0;
     float val = floor(noise * steps) / steps;
 
+    // Do a fancy formula to make the sky change color the higher it is.
     float h = toCam.y * 0.5 + 0.5;
-
     vec3 horizon = vec3(0.0, 0.0, 0.25);
     vec3 zenith  = vec3(0.1, 0.2, 0.6);
 
     vec3 baseSky = mix(horizon, zenith, smoothstep(0.0, 1.0, h));
-    vec3 finalColor = baseSky + val * 0.1;
-    vec3 gradientWithNebula = mix(finalColor, flow, 1.2 * h);
-//    vec3 color = vec3(abs(flow), flow, abs(flow));
-    gradientWithNebula += layeredNoise3D(toCam.x, toCam.y, toCam.z, 15, 5);
+    vec3 gradient = baseSky + val * 0.1;
+
+    // Mix the gradient with the nebula.
+    vec3 gradientWithNebula = mix(gradient, nebula, 1.3 * h);
+
+    // Make some noise to add some more texture to it.
+    vec3 additiveNoiseColor = vec3(layeredNoise3D(toCam.x, toCam.y, toCam.z, 2, 5) + vec3(0.1, 0.1, 0.0) * sin(time / 2));
+    additiveNoiseColor *= vec3(0.25, 0.5, 0.25);
+
+    // Add the noise to the final color.
+    gradientWithNebula += additiveNoiseColor;
 
     FragColor = vec4(gradientWithNebula, 1.0);
 }
