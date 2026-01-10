@@ -16,8 +16,7 @@ vec3 getCracksColor() {
 void main()
 {
     toCam = normalize(FragPos - cameraPos);
-    float smallTime = sin(time / 2);
-    float smallerTime = time / 25;
+    float smallTime = sin(time / 3);
 
     // Get the main nebula color.
 
@@ -45,14 +44,14 @@ void main()
 
     // Make some noise to add some more texture to it.
     vec3 additiveNoiseColor = vec3(layeredNoise3D(toCam.x, toCam.y, toCam.z, 2, 5) + vec3(0.1, 0.1, 0.0) * sin(time / 2));
-    additiveNoiseColor *= vec3(0.25, 0.5, 0.25);
+    additiveNoiseColor *= vec3(0.1, 0.25, 0.15) + (smallTime - 0.5) * 0.5;
 
     // Add the noise to the final color.
     gradientWithNebula += additiveNoiseColor;
 
     // Get the ridge color.
-    vec3 cracks = getCracksColor();
+    vec3 cracks = getCracksColor() * vec3(0.2, 0.25, 0.3);
 
-    vec3 finalColor = gradientWithNebula + cracks;
+    vec3 finalColor = gradientWithNebula * 2 + cracks;
     FragColor = vec4(finalColor, 1.0);
 }
