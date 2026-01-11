@@ -2,6 +2,8 @@
 
 #include <glm/vec3.hpp>
 
+#include "lighting.h"
+
 constexpr float padU = 0.0001f;   // horizontal padding
 constexpr float padV = 0.0001f;   // vertical padding
 
@@ -25,22 +27,22 @@ std::vector<float> skyboxVertices = {
   1, 1,-1, 0,0,-1,  3*0.25f + padU, 2*0.333333f - padV,
 
  // ===== +X (right) =====
-  1,-1,-1, 1,0,0,  3*0.25f - padU, 1*0.333333f + padV,
+  1, 1, 1, 1,0,0,  2*0.25f + padU, 2*0.333333f - padV,
   1,-1, 1, 1,0,0,  2*0.25f + padU, 1*0.333333f + padV,
-  1, 1, 1, 1,0,0,  2*0.25f + padU, 2*0.333333f - padV,
-
   1,-1,-1, 1,0,0,  3*0.25f - padU, 1*0.333333f + padV,
-  1, 1, 1, 1,0,0,  2*0.25f + padU, 2*0.333333f - padV,
+
   1, 1,-1, 1,0,0,  3*0.25f - padU, 2*0.333333f - padV,
+  1, 1, 1, 1,0,0,  2*0.25f + padU, 2*0.333333f - padV,
+  1,-1,-1, 1,0,0,  3*0.25f - padU, 1*0.333333f + padV,
 
  // ===== -X (left) =====
- -1,-1, 1,-1,0,0,  1*0.25f - padU, 1*0.333333f + padV,
+ -1, 1,-1,-1,0,0,  0*0.25f + padU, 2*0.333333f - padV,
  -1,-1,-1,-1,0,0,  0*0.25f + padU, 1*0.333333f + padV,
- -1, 1,-1,-1,0,0,  0*0.25f + padU, 2*0.333333f - padV,
-
  -1,-1, 1,-1,0,0,  1*0.25f - padU, 1*0.333333f + padV,
- -1, 1,-1,-1,0,0,  0*0.25f + padU, 2*0.333333f - padV,
+
  -1, 1, 1,-1,0,0,  1*0.25f - padU, 2*0.333333f - padV,
+ -1, 1,-1,-1,0,0,  0*0.25f + padU, 2*0.333333f - padV,
+ -1,-1, 1,-1,0,0,  1*0.25f - padU, 1*0.333333f + padV,
 
  // ===== +Y (top) =====
  -1, 1, 1, 0,1,0,  1*0.25f + padU, 2*0.333333f + padV,
@@ -62,6 +64,3 @@ std::vector<float> skyboxVertices = {
 };
 
 
-Skybox::Skybox() {
-
-}

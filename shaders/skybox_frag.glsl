@@ -2,7 +2,6 @@ out vec4 FragColor;
 in vec2 UV;
 in vec3 FragPos;
 in vec3 Normal;
-uniform sampler2D skyboxTexture;
 
 vec3 toCam;
 
@@ -16,8 +15,7 @@ vec3 getGradientColor(float mixer) {
     vec3 horizon = vec3(0.0, 0.0, 0.25);
     vec3 zenith  = vec3(0.1, 0.2, 0.6);
 
-    return mix(horizon, zenith, smoothstep(0.0, 1.0, mixer
-    ));
+    return mix(horizon, zenith, smoothstep(0.0, 1.0, mixer));
 }
 
 void main()

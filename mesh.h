@@ -40,7 +40,7 @@ public:
         initBuffers();
     }
 
-    void shaderUniformUpdates() {
+    void shaderUniformUpdates() const {
         shader.use();
         shader.setFloat("time", timeValue);
         shader.setVec3("cameraPos", camera.Position.x, camera.Position.y, camera.Position.z);
@@ -52,7 +52,7 @@ public:
         shader.setVec3("dirLight.direction", sunDir.x, sunDir.y, sunDir.z);
     }
 
-    void draw() {
+    void draw() const {
         shader.use();
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
