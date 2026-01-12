@@ -36,7 +36,7 @@ void main()
     vec3 gradient = getGradientColor(h);
 
     // Mix the gradient with the nebula.
-    vec3 gradientWithNebula = mix(gradient, nebula, 1.3 * h);
+    vec3 gradientWithNebula = mix(gradient, nebula, 0.5);
 
     // Get the ridge color.
     vec3 cracks = getCracksColor(noise) * vec3(0.2, 0.25, 0.3);
