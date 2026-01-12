@@ -68,6 +68,6 @@ void main()
     vec3 cracks = getCracksColor(noise) * vec3(0.2, 0.25, 0.3);
 
     vec3 finalColor = gradientWithNebula * 2 + cracks;
-    finalColor += getSunAddition() * 1000;
+    finalColor.x += greatCircleDistance(FragPos, FragPos + dirLight.direction, 1.0f) * 1000;
     FragColor = vec4(finalColor, 1.0);
 }
