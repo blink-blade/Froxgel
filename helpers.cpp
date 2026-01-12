@@ -47,7 +47,7 @@ void CHECK_FRAMEBUFFER_STATUS() {
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
-    projection = glm::perspective(glm::radians(camera.Fov), 800.0f / 600.0f, nearPlane, farPlane);
+    projection = glm::perspective(glm::radians(camera.Fov), 16.0f / 9.0f, nearPlane, farPlane);
     CHECK_FRAMEBUFFER_STATUS();
 }
 
