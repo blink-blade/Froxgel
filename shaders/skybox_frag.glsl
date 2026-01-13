@@ -4,7 +4,7 @@ in vec3 FragPos;
 in vec3 Normal;
 
 vec3 toCam;
-vec3 sunColor = vec3(0.976470588235, 0.8431372549, 0.109803921569);
+vec3 sunRGB = vec3(0.976470588235, 0.8431372549, 0.109803921569);
 
 vec3 getCracksColor(float noise) {
     float cracks = abs(fract(noise * 4.0) - 0.5);
@@ -40,8 +40,8 @@ float greatCircleDistance(vec3 p1, vec3 p2, float r) {
 }
 
 vec3 getSunAddition() {
-    float distance = greatCircleDistance(cameraPos, cameraPos + toCam, 1.0f);
-    return vec3(distance, distance, distance);
+    float distance = greatCircleDistance(normalize(toCam), dirLight.direction, 1.0f);
+    return (sunRGB * max(0.0f, 0.3f - distance)) * 5;
 }
 
 void main()
@@ -68,6 +68,7 @@ void main()
     vec3 cracks = getCracksColor(noise) * vec3(0.2, 0.25, 0.3);
 
     vec3 finalColor = gradientWithNebula * 2 + cracks;
-    finalColor.x += greatCircleDistance(FragPos, FragPos + dirLight.direction, 1.0f) * 1000;
+    finalColor += getSunAddition();
+
     FragColor = vec4(finalColor, 1.0);
 }
