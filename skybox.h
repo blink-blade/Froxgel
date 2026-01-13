@@ -15,7 +15,7 @@ class Skybox : public Mesh {
 
     void draw() const {
         glm::mat4 rotationMat(1);
-        rotationMat = glm::rotate(rotationMat, 0.01f, glm::vec3(0.0, 0.0, 1.0));
+        rotationMat = glm::rotate(rotationMat, 0.001f, glm::vec3(0.0, 0.0, 1.0));
         sunDir = glm::vec3(rotationMat * glm::vec4(sunDir, 1.0));;
         Mesh::draw();
 

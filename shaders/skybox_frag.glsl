@@ -40,7 +40,7 @@ float greatCircleDistance(vec3 p1, vec3 p2, float r) {
 }
 
 vec3 getSunAddition() {
-    float distance = greatCircleDistance(normalize(toCam), dirLight.direction, 1.0f);
+    float distance = greatCircleDistance(normalize(toCam), -dirLight.direction, 1.0f);
     return (sunRGB * max(0.0f, 0.3f - distance)) * 5;
 }
 

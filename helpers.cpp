@@ -65,8 +65,8 @@ void engineInits() {
 void engineUpdates() {
     timeValue = glfwGetTime();
     processInput();
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);
+    // glEnable(GL_CULL_FACE);
+    // glCullFace(GL_FRONT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
