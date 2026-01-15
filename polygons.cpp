@@ -197,12 +197,42 @@ vector<float> generateGrid(int width, int height, int scale, int numsPerVertex, 
             vertices[i++] = 0.0f;
             // Fill in the blank spaces that aren't position.
             for (int num = 6; num < numsPerVertex; num++) {
-                vertices[i++] = 0.0f;
+                vertices[i++] = 1.0f;
             }
 
             vertices[i++] = x * scale + scale + offsetX;
             vertices[i++] = 0.0f + offsetY;
             vertices[i++] = y * scale + offsetZ;
+            vertices[i++] = 0.0f;
+            vertices[i++] = 1.0f;
+            vertices[i++] = 0.0f;
+            for (int num = 6; num < numsPerVertex; num++) {
+                vertices[i++] = 1.0f;
+            }
+
+            vertices[i++] = x * scale + offsetX;
+            vertices[i++] = 0.0f + offsetY;
+            vertices[i++] = y * scale + scale + offsetZ;
+            vertices[i++] = 0.0f;
+            vertices[i++] = 1.0f;
+            vertices[i++] = 0.0f;
+            for (int num = 6; num < numsPerVertex; num++) {
+                vertices[i++] = 1.0f;
+            }
+
+            vertices[i++] = x * scale + scale + offsetX;
+            vertices[i++] = 0.0f + offsetY;
+            vertices[i++] = y * scale + offsetZ;
+            vertices[i++] = 0.0f;
+            vertices[i++] = 1.0f;
+            vertices[i++] = 0.0f;
+            for (int num = 6; num < numsPerVertex; num++) {
+                vertices[i++] = 1.0f;
+            }
+
+            vertices[i++] = x * scale + scale + offsetX;
+            vertices[i++] = 0.0f + offsetY;
+            vertices[i++] = y * scale + scale + offsetZ;
             vertices[i++] = 0.0f;
             vertices[i++] = 1.0f;
             vertices[i++] = 0.0f;
@@ -217,37 +247,7 @@ vector<float> generateGrid(int width, int height, int scale, int numsPerVertex, 
             vertices[i++] = 1.0f;
             vertices[i++] = 0.0f;
             for (int num = 6; num < numsPerVertex; num++) {
-                vertices[i++] = 0.0f;
-            }
-
-            vertices[i++] = x * scale + scale + offsetX;
-            vertices[i++] = 0.0f + offsetY;
-            vertices[i++] = y * scale + offsetZ;
-            vertices[i++] = 0.0f;
-            vertices[i++] = 1.0f;
-            vertices[i++] = 0.0f;
-            for (int num = 6; num < numsPerVertex; num++) {
-                vertices[i++] = 0.0f;
-            }
-
-            vertices[i++] = x * scale + scale + offsetX;
-            vertices[i++] = 0.0f + offsetY;
-            vertices[i++] = y * scale + scale + offsetZ;
-            vertices[i++] = 0.0f;
-            vertices[i++] = 1.0f;
-            vertices[i++] = 0.0f;
-            for (int num = 6; num < numsPerVertex; num++) {
-                vertices[i++] = 0.0f;
-            }
-
-            vertices[i++] = x * scale + offsetX;
-            vertices[i++] = 0.0f + offsetY;
-            vertices[i++] = y * scale + scale + offsetZ;
-            vertices[i++] = 0.0f;
-            vertices[i++] = 1.0f;
-            vertices[i++] = 0.0f;
-            for (int num = 6; num < numsPerVertex; num++) {
-                vertices[i++] = 0.0f;
+                vertices[i++] = 1.0f;
             }
         }
     }

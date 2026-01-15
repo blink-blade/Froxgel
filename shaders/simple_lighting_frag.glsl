@@ -1,5 +1,5 @@
 out vec4 FragColor;
-in vec2 UV;
+in vec3 Color;
 in vec3 FragPos;
 in vec3 Normal;
 
