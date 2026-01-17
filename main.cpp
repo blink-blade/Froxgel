@@ -28,13 +28,13 @@ int main() {
         engineUpdates();
         lightUpdates();
         sphere.shaderUniformUpdates();
-        sphere.draw();
+        sphere.draw(sunCamera);
         ground.shaderUniformUpdates();
-        ground.draw();
+        ground.draw(sunCamera);
         // sunSphere.shaderUniformUpdates(sunCamera.Position);
         // sunSphere.draw();
         skybox.shaderUniformUpdates();
-        skybox.draw();
+        skybox.draw(sunCamera);
         window.pollEvents();
     }
 

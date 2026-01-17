@@ -14,6 +14,8 @@
 
 using namespace std;
 float timeValue;
+float deltaTime;
+float previousFrameTime;
 
 vector<string> splitString(string s, char delim) {
     stringstream ss(s);
@@ -88,6 +90,8 @@ void engineInits() {
 
 void engineUpdates() {
     timeValue = glfwGetTime();
+    deltaTime = timeValue - previousFrameTime;
+    previousFrameTime = timeValue;
     processInput();
     // glEnable(GL_CULL_FACE);
     // glCullFace(GL_FRONT);

@@ -129,6 +129,11 @@ public:
                      glm::value_ptr(glm::vec3(x, y, z)));
     }
 
+    void setVec3(const std::string& name, glm::vec3 xyz) const {
+        glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1,
+                     glm::value_ptr(glm::vec3(xyz.x, xyz.y, xyz.z)));
+    }
+
     void setVec4(const std::string& name, float x, float y, float z, float w) const {
         glUniform4fv(glGetUniformLocation(ID, name.c_str()), 1,
                      glm::value_ptr(glm::vec4(x, y, z, w)));

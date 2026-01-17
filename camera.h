@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
+#include <glm/detail/type_quat.hpp>
 
 using namespace std;
 enum CameraMovement
@@ -18,43 +19,43 @@ enum CameraMovement
 class Camera
 {
 public:
-    // Camera attributes
     glm::vec3 Position;
+
     glm::vec3 Front;
     glm::vec3 Up;
     glm::vec3 Right;
     glm::vec3 WorldUp;
 
-    // Euler angles
+    // Euler angles (still used for mouse input)
     float Yaw;
     float Pitch;
 
-    // Options
+    // NEW: orientation
+    glm::quat Orientation;
+
     float MovementSpeed;
     float MouseSensitivity;
     float Fov;
     float IsPlayer;
 
-    // Constructor
     Camera(
-        glm::vec3 position = glm::vec3(0.0f, 0.1f, 3.0f),
+        glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f),
         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
         float yaw = -90.0f,
         float pitch = 0.0f,
         bool isPlayer = false
     );
 
-    // Returns the view matrix
     glm::mat4 GetViewMatrix() const;
 
-    // Input handling
     void ProcessKeyboard(CameraMovement direction, float deltaTime);
-    void ProcessMouseMovement(float xOffset, float yOffset, bool constrainPitch = true);
-    void ProcessMouseScroll(float yOffset);
-    void UpdateCameraVectors();
-    void LookAt(const glm::vec3& target, bool constrainPitch = true);
+    void ProcessMouseMovement(float xOffset, float yOffset);
+
+    void LookAt(const glm::vec3& target);
 
 private:
+    void UpdateVectorsFromQuaternion();
+    void UpdateQuaternionFromEuler();
 };
 
 extern float cameraSpeed;

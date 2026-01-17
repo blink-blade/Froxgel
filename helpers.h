@@ -5,6 +5,7 @@
 #include "window.h"
 using namespace std;
 extern float timeValue;
+extern float deltaTime;
 
 extern vector<string> splitString(string s, char delim);
 extern void engineInits();

@@ -1,5 +1,9 @@
 #include "camera.h"
 
+#include <iostream>
+#include <glm/ext/quaternion_trigonometric.hpp>
+#include <glm/gtc/quaternion.hpp>
+
 // Default values
 float cameraSpeed = 6.0f;
 static constexpr float DEFAULT_SENSITIVITY = 0.1f;
@@ -8,21 +12,19 @@ float nearPlane = 0.1f;
 float farPlane = 1000000.0f;
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch, bool isPlayer)
-    : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
-      MovementSpeed(cameraSpeed),
-      MouseSensitivity(DEFAULT_SENSITIVITY),
-      Fov(DEFAULT_FOV),
+    : Position(position),
+      WorldUp(up),
+      Yaw(yaw),
+      Pitch(pitch),
+      MovementSpeed(6.0f),
+      MouseSensitivity(0.07f),
+      Fov(70.0f),
       IsPlayer(false)
 {
-    Position = position;
-    WorldUp = up;
-    Yaw = yaw;
-    Pitch = pitch;
-    Pitch = isPlayer;
-
-    UpdateCameraVectors();
+    IsPlayer = isPlayer;
+    UpdateQuaternionFromEuler();
+    UpdateVectorsFromQuaternion();
 }
-
 glm::mat4 Camera::GetViewMatrix() const
 {
     return glm::lookAt(Position, Position + Front, Up);
@@ -47,66 +49,50 @@ void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
         Position -= WorldUp * velocity;
 }
 
-void Camera::ProcessMouseMovement(float xOffset, float yOffset, bool constrainPitch)
+void Camera::ProcessMouseMovement(float xOffset, float yOffset)
 {
-    if (IsPlayer) {
-        xOffset *= MouseSensitivity;
-        yOffset *= MouseSensitivity;
+    xOffset *= MouseSensitivity;
+    yOffset *= MouseSensitivity;
 
-        Yaw   += xOffset;
-        Pitch += yOffset;
+    Yaw   -= xOffset;
+    Pitch += yOffset;
+    Pitch = glm::clamp(Pitch, -89.0f, 89.0f);
 
-        if (constrainPitch)
-        {
-            if (Pitch > 89.0f)
-                Pitch = 89.0f;
-            if (Pitch < -89.0f)
-                Pitch = -89.0f;
-        }
-    }
-
-    UpdateCameraVectors();
+    UpdateQuaternionFromEuler();
+    UpdateVectorsFromQuaternion();
 }
 
-void Camera::ProcessMouseScroll(float yOffset)
+void Camera::LookAt(const glm::vec3& target)
 {
-    Fov -= yOffset;
-    if (Fov < 30.0f)
-        Fov = 30.0f;
-    if (Fov > 90.0f)
-        Fov = 90.0f;
+    glm::vec3 forward = glm::normalize(target - Position);
+
+    // Handle degenerate case (camera exactly at target)
+    if (glm::dot(forward, forward) < 1e-6f)
+        return;
+
+    // Build quaternion from direction
+    Orientation = glm::quatLookAtRH(forward, WorldUp);
+
+    // Update direction vectors
+    UpdateVectorsFromQuaternion();
+
+    // OPTIONAL: extract yaw/pitch back out (for mouse continuity)
+    Pitch = glm::degrees(asin(Front.y));
+    Yaw   = glm::degrees(atan2(Front.x, -Front.z));
 }
 
-void Camera::LookAt(const glm::vec3& target, bool constrainPitch)
+void Camera::UpdateQuaternionFromEuler()
 {
-    glm::vec3 direction = glm::normalize(target - Position);
+    glm::quat yawQ   = glm::angleAxis(glm::radians(Yaw),   WorldUp);
+    glm::quat pitchQ = glm::angleAxis(glm::radians(Pitch), glm::vec3(1, 0, 0));
 
-    // Calculate yaw and pitch from direction vector
-    float pitch = glm::degrees(asin(direction.y));
-    float yaw   = glm::degrees(atan2(direction.z, direction.x));
-
-    // OpenGL forward is -Z, so offset yaw
-    yaw -= 90.0f;
-
-    Pitch = pitch;
-    Yaw   = yaw;
-
-    if (constrainPitch)
-    {
-        if (Pitch > 89.0f)  Pitch = 89.0f;
-        if (Pitch < -89.0f) Pitch = -89.0f;
-    }
-
-    UpdateCameraVectors();
+    Orientation = yawQ * pitchQ;
+    Orientation = glm::normalize(Orientation);
 }
 
-void Camera::UpdateCameraVectors()
+void Camera::UpdateVectorsFromQuaternion()
 {
-    glm::vec3 front;
-    front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-    front.y = sin(glm::radians(Pitch));
-    front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-    Front = glm::normalize(front);
+    Front = Orientation * glm::vec3(0, 0, -1);
     Right = glm::normalize(glm::cross(Front, WorldUp));
     Up    = glm::normalize(glm::cross(Right, Front));
 }

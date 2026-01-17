@@ -40,11 +40,10 @@ public:
         initBuffers();
     }
 
-    void shaderUniformUpdates() const {
+    void shaderUniformUpdates(glm::vec3 offset = glm::vec3(0.0f)) const {
         shader.use();
+        shader.setVec3("offset", offset);
         shader.setFloat("time", timeValue);
-        shader.setVec3("cameraPos", camera.Position.x, camera.Position.y, camera.Position.z);
-        shader.setMat4("view", camera.GetViewMatrix());
         shader.setMat4("projection", projection);
         shader.setVec3("dirLight.ambient", 0.1f * 1, 0.1f * 1, 0.1f * 1);
         shader.setVec3("dirLight.diffuse", 0.4f * 2, 0.4f * 2, 0.4f * 2);
@@ -52,8 +51,10 @@ public:
         shader.setVec3("dirLight.direction", sunDir.x, sunDir.y, sunDir.z);
     }
 
-    void draw() const {
+    void draw(Camera cam) const {
         shader.use();
+        shader.setVec3("cameraPos", cam.Position);
+        shader.setMat4("view", cam.GetViewMatrix());
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
     }
