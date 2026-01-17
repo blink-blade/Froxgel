@@ -3,7 +3,6 @@ in vec3 Color;
 in vec3 FragPos;
 in vec3 Normal;
 
-vec3 color = vec3(1.0, 1.0, 1.0);
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {
     vec3 lightDir = normalize(-light.direction);
@@ -14,9 +13,9 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     float shininess = 32.0;
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
     // combine results
-    vec3 ambient  = light.ambient  * color;
-    vec3 diffuse  = light.diffuse  * diff * color;
-    vec3 specular = light.specular * spec * color;
+    vec3 ambient  = light.ambient  * Color;
+    vec3 diffuse  = light.diffuse  * diff * Color;
+    vec3 specular = light.specular * spec * Color;
     return (ambient + diffuse + specular);
 }
 

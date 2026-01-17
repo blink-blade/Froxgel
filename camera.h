@@ -33,13 +33,15 @@ public:
     float MovementSpeed;
     float MouseSensitivity;
     float Fov;
+    float IsPlayer;
 
     // Constructor
     Camera(
         glm::vec3 position = glm::vec3(0.0f, 0.1f, 3.0f),
         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
         float yaw = -90.0f,
-        float pitch = 0.0f
+        float pitch = 0.0f,
+        bool isPlayer = false
     );
 
     // Returns the view matrix
@@ -49,13 +51,16 @@ public:
     void ProcessKeyboard(CameraMovement direction, float deltaTime);
     void ProcessMouseMovement(float xOffset, float yOffset, bool constrainPitch = true);
     void ProcessMouseScroll(float yOffset);
+    void UpdateCameraVectors();
+    void LookAt(const glm::vec3& target, bool constrainPitch = true);
 
 private:
-    void UpdateCameraVectors();
 };
 
 extern float cameraSpeed;
 extern Camera camera;
 extern glm::mat4 projection;
+extern Camera sunCamera;
+extern glm::mat4 sunProjection;
 extern float nearPlane;
 extern float farPlane;

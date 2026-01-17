@@ -3,7 +3,7 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform float time;
 uniform vec3 cameraPos;
-
+uniform vec3 offset;
 mat4 rotationMatrix(float angleX, float angleY, float angleZ) {
     float cX = cos(angleX);
     float sX = sin(angleX);

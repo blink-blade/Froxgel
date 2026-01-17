@@ -17,18 +17,22 @@ using namespace std;
 int main() {
     engineInits();
     vector<float> vertices = generateSphere(100, 100, 100);
-    
-    Mesh mesh("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
-    vertices = generateGrid(1000, 1000, 100, 9, -50000, -100, -50000);
-    Mesh mesh2("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
+    Mesh sphere("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
+    vertices = generateGrid(1000, 1000, 10, 9, -5000, -100, -5000);
+    Mesh ground("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
+    vertices = generateSphere(100, 100, 100);
+    Mesh sunSphere("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
     Skybox skybox("vec3 vec3 vec2", skyboxVertices, "skybox", "skybox");
 
     while (!window.shouldClose()) {
         engineUpdates();
-        mesh.shaderUniformUpdates();
-        mesh.draw();
-        mesh2.shaderUniformUpdates();
-        mesh2.draw();
+        lightUpdates();
+        sphere.shaderUniformUpdates();
+        sphere.draw();
+        ground.shaderUniformUpdates();
+        ground.draw();
+        // sunSphere.shaderUniformUpdates(sunCamera.Position);
+        // sunSphere.draw();
         skybox.shaderUniformUpdates();
         skybox.draw();
         window.pollEvents();

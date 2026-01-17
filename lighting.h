@@ -10,6 +10,6 @@
 #include <glm/ext/quaternion_geometric.hpp>
 
 extern glm::vec3 sunDir;
-
+extern void lightUpdates();
 
 #endif

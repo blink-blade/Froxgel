@@ -165,8 +165,9 @@ std::vector<float> generateSphere(
                 data.push_back(z * invLen);
 
                 // UV
-                data.push_back(u);
-                data.push_back(v);
+                data.push_back(x * invLen);
+                data.push_back(y * invLen);
+                data.push_back(z * invLen);
             };
 
             // Triangle 1
@@ -237,7 +238,7 @@ vector<float> generateGrid(int width, int height, int scale, int numsPerVertex, 
             vertices[i++] = 1.0f;
             vertices[i++] = 0.0f;
             for (int num = 6; num < numsPerVertex; num++) {
-                vertices[i++] = 0.0f;
+                vertices[i++] = 1.0f;
             }
 
             vertices[i++] = x * scale + offsetX;

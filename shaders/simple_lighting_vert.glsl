@@ -7,7 +7,7 @@ out vec3 FragPos;
 
 void main()
 {
-    FragPos = vec3(aPos.x, aPos.y, aPos.z);
+    FragPos = vec3(aPos.x, aPos.y, aPos.z) + offset;
     gl_Position = projection * view * vec4(FragPos, 1.0);
     Color = aColor;
     Normal = aNormal;
