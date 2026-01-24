@@ -51,7 +51,7 @@ void framebufferSizeCallback(GLFWwindow* wind, int width, int height) {
     glViewport(0, 0, width, height);
     float aspect = (float)width / (float)height;
     projection = glm::perspective(glm::radians(camera.Fov), aspect, nearPlane, farPlane);
-    sunProjection = glm::ortho(-(float)width / 5, (float)width / 5, -(float)height / 5, (float)height / 5, nearPlane, farPlane / 10);
+    sunProjection = glm::ortho(-(float)width / 25, (float)width / 25, -(float)height / 25, (float)height / 25, nearPlane, farPlane / 10);
     // sunProjection = glm::perspective(glm::radians(camera.Fov), aspect, nearPlane, farPlane);
     window.width = width;
     window.height = height;

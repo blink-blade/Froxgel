@@ -8,7 +8,7 @@ in VS_OUT {
     vec4 FragPosLightSpace;
 } fs_in;
 
-float ShadowCalculation(vec4 fragPosLightSpace)
+float ShadowCalculation(vec4 fragPosLightSpace, DirLight light, vec3 normal, vec3 viewDir)
 {
     // perform perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
@@ -19,7 +19,8 @@ float ShadowCalculation(vec4 fragPosLightSpace)
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
     // check whether current frag pos is in shadow
-    float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
+    float bias = max(0.05 * (1.0 - dot(normal, -light.direction)), 0.004);
+    float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
 
     return shadow;
 }
@@ -37,7 +38,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     vec3 ambient  = light.ambient  * Color;
     vec3 diffuse  = light.diffuse  * diff * Color;
     vec3 specular = light.specular * spec * Color;
-    float shadow = ShadowCalculation(fs_in.FragPosLightSpace);
+    float shadow = ShadowCalculation(fs_in.FragPosLightSpace, light, normal, viewDir);
     return (ambient + (1.0 - shadow) * (diffuse + specular));
 }
 
