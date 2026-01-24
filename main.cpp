@@ -20,7 +20,7 @@ int main() {
     Mesh sphere("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
     vertices = generateGrid(100, 100, 1, 9, -50, -10, -50);
     Mesh ground("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
-    vertices = generateSphere(10, 100, 100);
+    vertices = generateSphere(1, 100, 100);
     Mesh sunSphere("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
     vertices = {
         -1.0f, -1.0f, 0.0f,  0.0f, 0.0f,
@@ -58,14 +58,14 @@ int main() {
         sunSphere.switchShader("simple_lighting", "simple_lighting");
         sphere.shaderUniformUpdates();
         ground.shaderUniformUpdates();
-        sunSphere.shaderUniformUpdates(sunCamera.Position);
+        sunSphere.shaderUniformUpdates(glm::vec3(sunCamera.Position.x / 10, sunCamera.Position.y / 10, sunCamera.Position.z / 10));
         skybox.shaderUniformUpdates();
 
-        sphere.draw(sunCamera, sunProjection);
-        ground.draw(sunCamera, sunProjection);
-        sunSphere.draw(sunCamera, sunProjection);
-        skybox.draw(sunCamera, sunProjection);
-        screen.draw(sunCamera, sunProjection);
+        sphere.draw(camera, projection);
+        ground.draw(camera, projection);
+        sunSphere.draw(camera, projection);
+        skybox.draw(camera, projection);
+        screen.draw(camera, projection);
         window.pollEvents();
     }
 

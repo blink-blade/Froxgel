@@ -86,6 +86,8 @@ void engineInits() {
 
     // glFrontFace(GL_CCW);
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
     stbi_set_flip_vertically_on_load(true);
 }
 

@@ -4,11 +4,19 @@ in vec2 TexCoords;
 
 uniform sampler2D depthMap;
 
+float nearPlane = 0.1f;
+float farPlane = 1000.0f;
+
+// required when using a perspective projection matrix
+float linearizeDepth(float depth)
+{
+    float z = depth * 2.0 - 1.0; // Back to NDC
+    return (2.0 * nearPlane * farPlane) / (farPlane + nearPlane - z * (farPlane - nearPlane));
+}
+
 void main()
 {
     float depthValue = texture(depthMap, TexCoords).r;
-    vec3 color = vec3(depthValue);
-    color = mix(color * 1,
-                mix(vec3(0.5, 0.5, 0.5), color, 500), 0.5);
-    FragColor = vec4(color, 1.0); // orthographic
+//     FragColor = vec4(vec3(linearizeDepth(depthValue) / farPlane), 1.0); // perspective
+    FragColor = vec4(vec3(depthValue), 1.0); // orthographic
 }

@@ -9,7 +9,7 @@ float cameraSpeed = 6.0f;
 static constexpr float DEFAULT_SENSITIVITY = 0.1f;
 static constexpr float DEFAULT_FOV = 90.0f;
 float nearPlane = 0.1f;
-float farPlane = 10000.0f;
+float farPlane = 1000.0f;
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch, bool isPlayer)
     : Position(position),
