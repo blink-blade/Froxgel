@@ -5,10 +5,22 @@ out vec3 Color;
 out vec3 Normal;
 out vec3 FragPos;
 
+out VS_OUT {
+    vec3 FragPos;
+    vec3 Normal;
+//    vec2 TexCoords;
+    vec4 FragPosLightSpace;
+} vs_out;
+
 void main()
 {
-    FragPos = vec3(aPos.x, aPos.y, aPos.z) + offset;
-    gl_Position = projection * view * vec4(FragPos, 1.0);
+//    gl_Position = spaceMatrix * vec4(FragPos, 1.0);
     Color = aColor;
-    Normal = aNormal;
+//    Normal = aNormal;
+
+    vs_out.FragPos = vec3(aPos.x, aPos.y, aPos.z) + offset;
+    vs_out.Normal = aNormal;
+//    vs_out.TexCoords = aTexCoords;
+    vs_out.FragPosLightSpace = sunSpaceMatrix * vec4(vs_out.FragPos, 1.0);
+    gl_Position = spaceMatrix * vec4(vs_out.FragPos, 1.0);
 }

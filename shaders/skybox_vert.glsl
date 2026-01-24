@@ -7,8 +7,8 @@ out vec3 FragPos;
 
 void main()
 {
-    FragPos = (vec3(aPos.x, aPos.y, aPos.z) * 550) + cameraPos;
-    gl_Position = projection * view * vec4(FragPos, 1.0);
+    FragPos = (vec3(aPos.x, aPos.y, aPos.z) * 1000) + cameraPos;
+    gl_Position = spaceMatrix * vec4(FragPos, 1.0);
     UV = aUV;
     Normal = aNormal;
 }

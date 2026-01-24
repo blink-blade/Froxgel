@@ -49,17 +49,17 @@ public:
         shader.use();
         shader.setVec3("offset", offset);
         shader.setFloat("time", timeValue);
+        shader.setMat4("sunSpaceMatrix", sunProjection * sunCamera.GetViewMatrix());
         shader.setVec3("dirLight.ambient", 0.1f * 1, 0.1f * 1, 0.1f * 1);
         shader.setVec3("dirLight.diffuse", 0.4f * 2, 0.4f * 2, 0.4f * 2);
         shader.setVec3("dirLight.specular", 0.5f * 2, 0.5f * 2, 0.5f * 2);
         shader.setVec3("dirLight.direction", sunDir.x, sunDir.y, sunDir.z);
     }
 
-    void draw(Camera cam, glm::mat4 proj) const {
+    void draw(Camera cam) const {
         shader.use();
         shader.setVec3("cameraPos", cam.Position);
-        shader.setMat4("view", cam.GetViewMatrix());
-        shader.setMat4("projection", proj);
+        shader.setMat4("spaceMatrix", projection * cam.GetViewMatrix());
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
     }

@@ -1,9 +1,11 @@
 #version 460 core
-uniform mat4 view;
-uniform mat4 projection;
-uniform float time;
+uniform mat4 spaceMatrix;
 uniform vec3 cameraPos;
+uniform mat4 sunSpaceMatrix;
+uniform float time;
 uniform vec3 offset;
+uniform sampler2D shadowMap;
+
 mat4 rotationMatrix(float angleX, float angleY, float angleZ) {
     float cX = cos(angleX);
     float sX = sin(angleX);

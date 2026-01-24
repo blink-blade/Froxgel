@@ -16,11 +16,11 @@ using namespace std;
 
 int main() {
     engineInits();
-    vector<float> vertices = generateSphere(10, 100, 100);
+    vector<float> vertices = generateSphere(5, 100, 100);
     Mesh sphere("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
     vertices = generateGrid(100, 100, 1, 9, -50, -10, -50);
     Mesh ground("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
-    vertices = generateSphere(1, 100, 100);
+    vertices = generateSphere(0.33, 100, 100);
     Mesh sunSphere("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
     vertices = {
         -1.0f, -1.0f, 0.0f,  0.0f, 0.0f,
@@ -34,7 +34,7 @@ int main() {
     Mesh screen("vec3 vec2", vertices, "screen", "screen");
     Skybox skybox("vec3 vec3 vec2", skyboxVertices, "skybox", "skybox");
     screen.shader.use();
-    screen.shader.setInt("depthMap", 0);
+    screen.shader.setInt("shadowMap", 0);
     while (!window.shouldClose()) {
         engineUpdates();
         lightUpdates();
@@ -46,10 +46,10 @@ int main() {
         ground.switchShader("depth", "depth");
         sphere.shaderUniformUpdates();
         ground.shaderUniformUpdates();
-        sphere.draw(sunCamera, sunProjection);
-        ground.draw(sunCamera, sunProjection);
+        sphere.draw(sunCamera);
+        ground.draw(sunCamera);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, depthMap);
+        glBindTexture(GL_TEXTURE_2D, shadowMap);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glViewport(0, 0, window.width, window.height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -58,14 +58,14 @@ int main() {
         sunSphere.switchShader("simple_lighting", "simple_lighting");
         sphere.shaderUniformUpdates();
         ground.shaderUniformUpdates();
-        sunSphere.shaderUniformUpdates(glm::vec3(sunCamera.Position.x / 10, sunCamera.Position.y / 10, sunCamera.Position.z / 10));
+        sunSphere.shaderUniformUpdates(glm::vec3(sunCamera.Position.x / 1, sunCamera.Position.y / 1, sunCamera.Position.z / 1));
         skybox.shaderUniformUpdates();
 
-        sphere.draw(camera, projection);
-        ground.draw(camera, projection);
-        sunSphere.draw(camera, projection);
-        skybox.draw(camera, projection);
-        screen.draw(camera, projection);
+        sphere.draw(camera);
+        ground.draw(camera);
+        sunSphere.draw(camera);
+        skybox.draw(camera);
+        screen.draw(camera);
         window.pollEvents();
     }
 
