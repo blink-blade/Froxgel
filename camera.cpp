@@ -9,7 +9,7 @@ float cameraSpeed = 6.0f;
 static constexpr float DEFAULT_SENSITIVITY = 0.1f;
 static constexpr float DEFAULT_FOV = 90.0f;
 float nearPlane = 0.1f;
-float farPlane = 1000000.0f;
+float farPlane = 10000.0f;
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch, bool isPlayer)
     : Position(position),
@@ -100,4 +100,4 @@ void Camera::UpdateVectorsFromQuaternion()
 Camera camera = Camera();
 glm::mat4 projection = glm::perspective(glm::radians(camera.Fov), 800.0f / 600.0f, nearPlane, farPlane);
 Camera sunCamera = Camera();
-glm::mat4 sunProjection = glm::perspective(glm::radians(sunCamera.Fov), 800.0f / 600.0f, nearPlane, farPlane);
+glm::mat4 sunProjection = glm::ortho(-100.0f, -100.0f, 100.0f, 100.0f, nearPlane, farPlane);

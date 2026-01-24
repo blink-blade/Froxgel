@@ -47,11 +47,14 @@ void CHECK_FRAMEBUFFER_STATUS() {
     }
 }
 
-void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
+void framebufferSizeCallback(GLFWwindow* wind, int width, int height) {
     glViewport(0, 0, width, height);
     float aspect = (float)width / (float)height;
     projection = glm::perspective(glm::radians(camera.Fov), aspect, nearPlane, farPlane);
-    sunProjection = glm::perspective(glm::radians(camera.Fov), aspect, nearPlane, farPlane);
+    sunProjection = glm::ortho(-(float)width / 5, (float)width / 5, -(float)height / 5, (float)height / 5, nearPlane, farPlane);
+    // sunProjection = glm::perspective(glm::radians(camera.Fov), aspect, nearPlane, farPlane);
+    window.width = width;
+    window.height = height;
     CHECK_FRAMEBUFFER_STATUS();
 }
 
@@ -66,16 +69,14 @@ void engineInits() {
     glfwSetCursorPosCallback(window.GLFWWindow, mouseCallback);
 
     glGenFramebuffers(1, &depthMapFBO);
-
     glGenTextures(1, &depthMap);
     glBindTexture(GL_TEXTURE_2D, depthMap);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-                 SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
+    // attach depth texture as FBO's depth buffer
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
     glDrawBuffer(GL_NONE);

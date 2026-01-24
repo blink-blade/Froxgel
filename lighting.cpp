@@ -11,6 +11,9 @@ glm::vec3 sunDir = glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f));
 void lightUpdates() {
     // std::cout << sunCamera.Position.x << ", " << sunCamera.Position.y << ", " << sunCamera.Position.z << std::endl;
     // cout << sunCamera.Front.x << " " << sunCamera.Front.y << " " << sunCamera.Front.z << endl;
-    sunCamera.Position = -glm::vec3(sunDir.x * 10000, sunDir.y * 10000, sunDir.z * 10000);
+    glm::mat4 rotationMat(1);
+    rotationMat = glm::rotate(rotationMat, 0.003f, glm::vec3(0.0, 0.0, 1.0));
+    sunDir = glm::vec3(rotationMat * glm::vec4(sunDir, 1.0));;
+    sunCamera.Position = -glm::vec3(sunDir.x * 1000, sunDir.y * 1000, sunDir.z * 1000);
     sunCamera.LookAt(glm::vec3(0.1f));
 }

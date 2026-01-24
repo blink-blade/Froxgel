@@ -13,11 +13,8 @@ class Skybox : public Mesh {
     public:
     using Mesh::Mesh;
 
-    void draw(Camera cam) const {
-        glm::mat4 rotationMat(1);
-        rotationMat = glm::rotate(rotationMat, 0.01f, glm::vec3(0.0, 0.0, 1.0));
-        sunDir = glm::vec3(rotationMat * glm::vec4(sunDir, 1.0));;
-        Mesh::draw(cam);
+    void draw(Camera cam, glm::mat4 proj) const {
+        Mesh::draw(cam, proj);
     }
 };
 

@@ -28,12 +28,12 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos)
 }
 
 void processInput() {
-    cameraSpeed = 1.0f;
+    cameraSpeed = 0.1f;
     if(glfwGetKey(window.GLFWWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window.GLFWWindow, true);
     }
     if (glfwGetKey(window.GLFWWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-        cameraSpeed = 90.0f;
+        cameraSpeed = 1.0f;
     }
     if (glfwGetKey(window.GLFWWindow, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
         cameraSpeed *= 10.0f;
