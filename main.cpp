@@ -18,7 +18,7 @@ int main() {
     engineInits();
     vector<float> vertices = generateSphere(5, 100, 100);
     Mesh sphere("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
-    vertices = generateGrid(100, 100, 10, 9, -500, -10, -500);
+    vertices = generateGrid(100, 100, 10, 9, -500, -10, -500, true, 10);
     Mesh ground("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
     vertices = generateSphere(0.33, 100, 100);
     Mesh sunSphere("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");

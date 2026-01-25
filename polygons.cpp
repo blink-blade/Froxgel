@@ -3,8 +3,22 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <cmath>
+#include <glm/vec3.hpp>
+#include <glm/ext/quaternion_geometric.hpp>
+
+#include "generator.h"
 
 using namespace std;
+
+glm::vec3 calculateSurfaceNormal(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3) {
+    // Need to fix this function, it will only work for half of the triangles. Depending on the orientation of the triangles, the subtractions need done differently.
+    glm::vec3 U = p3 - p1;
+    glm::vec3 V = p2 - p1;
+
+    glm::vec3 normal((U.y * V.z) - (U.z * V.y), (U.z * V.x) - (U.x * V.z), (U.x * V.y) - (U.y * V.x));
+
+    return glm::normalize(normal);
+}
 
 // A function that I stole from chatGPT like an absolute genius would. ():
 std::vector<float> generateSphereVerticesFlat(
@@ -185,7 +199,8 @@ std::vector<float> generateSphere(
     return data;
 }
 
-vector<float> generateGrid(int width, int height, int scale, int numsPerVertex, int offsetX, int offsetY, int offsetZ) {
+vector<float> generateGrid(int width, int height, int scale, int numsPerVertex, int offsetX, int offsetY, int offsetZ, bool doNoise = false, float noiseScale = 1.0) {
+
     vector<float> vertices(width * height * numsPerVertex * 6);
     int i = 0;
     for (int x = 0; x < width; x++) {
@@ -251,6 +266,37 @@ vector<float> generateGrid(int width, int height, int scale, int numsPerVertex, 
                 vertices[i++] = 1.0f;
             }
         }
+    }
+
+    if (!doNoise) {
+        return vertices;
+    }
+    vector<vector<float>> heightMap = generateNoiseMap(width + 2, height + 2, 5, 0.5, 10, 123);
+    for (i = 0; i < vertices.size(); i += numsPerVertex) {
+        int x = (vertices[i] - offsetX) / scale;
+        int z = (vertices[i + 2] - offsetZ) / scale;
+        cout << x << " " << z << endl;
+        float noiseVal = heightMap[x][z];
+        vertices[i + 1] += noiseVal * noiseScale;
+    }
+
+    for (i = 0; i < vertices.size(); i += numsPerVertex * 3) {
+        glm::vec3 p1 = glm::vec3(vertices[i + 0], vertices[i + 1], vertices[i + 2]);
+        glm::vec3 p2 = glm::vec3(vertices[i + 0 + numsPerVertex], vertices[i + 1 + numsPerVertex], vertices[i + 2 + numsPerVertex]);
+        glm::vec3 p3 = glm::vec3(vertices[i + 0 + numsPerVertex * 2], vertices[i + 1 + numsPerVertex * 2], vertices[i + 2] + numsPerVertex * 2);
+        glm::vec3 normal = calculateSurfaceNormal(p1, p2, p3);
+
+        vertices[i + 3] = normal.x * noiseScale;
+        vertices[i + 4] = normal.y * noiseScale;
+        vertices[i + 5] = normal.z * noiseScale;
+
+        vertices[i + 3 + numsPerVertex] = normal.x * noiseScale;
+        vertices[i + 4 + numsPerVertex] = normal.y * noiseScale;
+        vertices[i + 5 + numsPerVertex] = normal.z * noiseScale;
+
+        vertices[i + 3 + numsPerVertex * 2] = normal.x * noiseScale;
+        vertices[i + 4 + numsPerVertex * 2] = normal.y * noiseScale;
+        vertices[i + 5 + numsPerVertex * 2] = normal.z * noiseScale;
     }
     cout << vertices.size() << endl;
     return vertices;
