@@ -71,7 +71,7 @@ int main() {
         ground.draw(camera);
         sunSphere.draw(camera);
         skybox.draw(camera);
-        screen.draw(camera);
+        // screen.draw(camera);
         window.pollEvents();
     }
 
