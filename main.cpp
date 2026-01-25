@@ -18,18 +18,19 @@ int main() {
     engineInits();
     vector<float> vertices = generateSphere(5, 100, 100);
     Mesh sphere("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
-    vertices = generateGrid(100, 100, 1, 9, -50, -10, -50);
+    vertices = generateGrid(100, 100, 10, 9, -500, -10, -500);
     Mesh ground("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
     vertices = generateSphere(0.33, 100, 100);
     Mesh sunSphere("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
     vertices = {
-        -1.0f, -1.0f, 0.0f,  0.0f, 0.0f,
+         0.0f,  0.0f, 0.0f,  1.0f, 1.0f,
          0.0f, -1.0f, 0.0f,  1.0f, 0.0f,
-         0.0f,  0.0f, 0.0f,  1.0f, 1.0f,
-
         -1.0f, -1.0f, 0.0f,  0.0f, 0.0f,
-         0.0f,  0.0f, 0.0f,  1.0f, 1.0f,
-        -1.0f,  0.0f, 0.0f,  0.0f, 1.0f
+
+        -1.0f,  0.0f, 0.0f,  0.0f, 1.0f,
+        0.0f,  0.0f, 0.0f,  1.0f, 1.0f,
+        -1.0f, -1.0f, 0.0f,  0.0f, 0.0f
+
     };
     Mesh screen("vec3 vec2", vertices, "screen", "screen");
     Skybox skybox("vec3 vec3 vec2", skyboxVertices, "skybox", "skybox");
@@ -39,6 +40,8 @@ int main() {
         engineUpdates();
         lightUpdates();
 
+        // Shadow map rendering
+        glCullFace(GL_FRONT);
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
@@ -48,10 +51,13 @@ int main() {
         ground.shaderUniformUpdates();
         sphere.draw(sunCamera);
         ground.draw(sunCamera);
+
+        // Normal rendering
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, shadowMap);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glViewport(0, 0, window.width, window.height);
+        glCullFace(GL_BACK);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         sphere.switchShader("simple_lighting", "simple_lighting");
         ground.switchShader("simple_lighting", "simple_lighting");

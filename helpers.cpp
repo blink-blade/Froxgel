@@ -51,7 +51,7 @@ void framebufferSizeCallback(GLFWwindow* wind, int width, int height) {
     glViewport(0, 0, width, height);
     float aspect = (float)width / (float)height;
     projection = glm::perspective(glm::radians(camera.Fov), aspect, nearPlane, farPlane);
-    sunProjection = glm::ortho(-(float)width / 25, (float)width / 25, -(float)height / 25, (float)height / 25, nearPlane, farPlane / 10);
+    sunProjection = glm::ortho(-(float)width / 10, (float)width / 10, -(float)height / 10, (float)height / 10, nearPlane, farPlane / 10);
     // sunProjection = glm::perspective(glm::radians(camera.Fov), aspect, nearPlane, farPlane);
     window.width = width;
     window.height = height;
@@ -74,8 +74,10 @@ void engineInits() {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
     // attach depth texture as FBO's depth buffer
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
@@ -84,7 +86,6 @@ void engineInits() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-    // glFrontFace(GL_CCW);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glDepthMask(GL_TRUE);
@@ -96,8 +97,9 @@ void engineUpdates() {
     deltaTime = timeValue - previousFrameTime;
     previousFrameTime = timeValue;
     processInput();
-    // glEnable(GL_CULL_FACE);
-    // glCullFace(GL_FRONT);
+    glFrontFace(GL_CW);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glClearColor(0.1f, 0.1f, 0.2f, 1.0f);

@@ -171,14 +171,14 @@ std::vector<float> generateSphere(
             };
 
             // Triangle 1
-            pushVertex(x1, y1, z1, u1, v1);
-            pushVertex(x2, y2, z2, u1, v2);
             pushVertex(x3, y3, z2, u2, v2);
+            pushVertex(x2, y2, z2, u1, v2);
+            pushVertex(x1, y1, z1, u1, v1);
 
             // Triangle 2
-            pushVertex(x1, y1, z1, u1, v1);
-            pushVertex(x3, y3, z2, u2, v2);
             pushVertex(x4, y4, z1, u2, v1);
+            pushVertex(x3, y3, z2, u2, v2);
+            pushVertex(x1, y1, z1, u1, v1);
         }
     }
 
