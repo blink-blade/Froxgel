@@ -14,4 +14,5 @@ extern void engineUpdates();
 extern unsigned int depthMapFBO;
 extern unsigned int shadowMap;
 extern const unsigned int SHADOW_WIDTH, SHADOW_HEIGHT;
+extern int xyToI(int x, int y, int width);
 #endif

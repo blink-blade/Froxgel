@@ -9,3 +9,4 @@
 
 extern float noise(float x, float y);
 extern vector<vector<float>> generateNoiseMap(int noiseWidth, int noiseHeight, int layerAmount, float frequency, float noiseAmplitude, unsigned int newSeed);
+extern float layeredNoise(int x, int y, int layerAmount, float frequency, float noiseAmplitude, unsigned int newSeed);

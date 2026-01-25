@@ -7,6 +7,7 @@
 #include <glm/ext/quaternion_geometric.hpp>
 
 #include "generator.h"
+#include "shader.h"
 
 using namespace std;
 
@@ -199,105 +200,167 @@ std::vector<float> generateSphere(
     return data;
 }
 
-vector<float> generateGrid(int width, int height, int scale, int numsPerVertex, int offsetX, int offsetY, int offsetZ, bool doNoise = false, float noiseScale = 1.0) {
+vector<float> generateGrid(
+    int width,
+    int height,
+    float scale,
+    int numsPerVertex,
+    float r = 0.992156862745f,
+    float g = 0.282352941176,
+    float b = 0.203921568627,
+    int offsetX = 0,
+    int offsetY = 0,
+    int offsetZ = 0,
+    float noiseAmplitude = 1.0f
+) {
+    const float frameDepth = 10.0f;
+    const float bottomY = offsetY - frameDepth;
 
-    vector<float> vertices(width * height * numsPerVertex * 6);
-    int i = 0;
-    for (int x = 0; x < width; x++) {
-        for (int y = 0; y < height; y++) {
-            vertices[i++] = x * scale + offsetX;
-            vertices[i++] = 0.0f + offsetY;
-            vertices[i++] = y * scale + offsetZ;
-            vertices[i++] = 0.0f;
-            vertices[i++] = 1.0f;
-            vertices[i++] = 0.0f;
-            // Fill in the blank spaces that aren't position.
-            for (int num = 6; num < numsPerVertex; num++) {
-                vertices[i++] = 1.0f;
-            }
+    auto emit = [&](vector<float>& v, int& i,
+                    float x, float y, float z,
+                    const glm::vec3& n) {
+        v[i++] = x; v[i++] = y; v[i++] = z;
+        v[i++] = n.x; v[i++] = n.y; v[i++] = n.z;
+        v[i++] = r; v[i++] = g; v[i++] = b;
+        for (int k = 9; k < numsPerVertex; k++)
+            v[i++] = 1.0f;
+    };
 
-            vertices[i++] = x * scale + scale + offsetX;
-            vertices[i++] = 0.0f + offsetY;
-            vertices[i++] = y * scale + offsetZ;
-            vertices[i++] = 0.0f;
-            vertices[i++] = 1.0f;
-            vertices[i++] = 0.0f;
-            for (int num = 6; num < numsPerVertex; num++) {
-                vertices[i++] = 1.0f;
-            }
+    // Generate noise
+    ComputeShader gen;
+    gen.init("perlin", width + 1, height + 1, 1);
+    gen.use();
+    gen.setInt("noiseHeight", height + 1);
+    gen.setFloat("noiseAmplitude", noiseAmplitude);
+    gen.dispatch();
 
-            vertices[i++] = x * scale + offsetX;
-            vertices[i++] = 0.0f + offsetY;
-            vertices[i++] = y * scale + scale + offsetZ;
-            vertices[i++] = 0.0f;
-            vertices[i++] = 1.0f;
-            vertices[i++] = 0.0f;
-            for (int num = 6; num < numsPerVertex; num++) {
-                vertices[i++] = 1.0f;
-            }
+    vector<glm::vec4> img(gen.elementCount);
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, gen.size, img.data());
 
-            vertices[i++] = x * scale + scale + offsetX;
-            vertices[i++] = 0.0f + offsetY;
-            vertices[i++] = y * scale + offsetZ;
-            vertices[i++] = 0.0f;
-            vertices[i++] = 1.0f;
-            vertices[i++] = 0.0f;
-            for (int num = 6; num < numsPerVertex; num++) {
-                vertices[i++] = 1.0f;
-            }
+    auto idx = [&](int x, int y) {
+        return xyToI(x, y, gen.workGroupAmount.x);
+    };
 
-            vertices[i++] = x * scale + scale + offsetX;
-            vertices[i++] = 0.0f + offsetY;
-            vertices[i++] = y * scale + scale + offsetZ;
-            vertices[i++] = 0.0f;
-            vertices[i++] = 1.0f;
-            vertices[i++] = 0.0f;
-            for (int num = 6; num < numsPerVertex; num++) {
-                vertices[i++] = 1.0f;
-            }
+    // Height & normals
+    vector<vector<float>> h(height + 1, vector<float>(width + 1));
+    vector<vector<glm::vec3>> n(height + 1, vector<glm::vec3>(width + 1));
 
-            vertices[i++] = x * scale + offsetX;
-            vertices[i++] = 0.0f + offsetY;
-            vertices[i++] = y * scale + scale + offsetZ;
-            vertices[i++] = 0.0f;
-            vertices[i++] = 1.0f;
-            vertices[i++] = 0.0f;
-            for (int num = 6; num < numsPerVertex; num++) {
-                vertices[i++] = 1.0f;
-            }
+    for (int y = 0; y <= height; y++)
+        for (int x = 0; x <= width; x++) {
+            auto d = img[idx(x, y)];
+            h[y][x] = d.x;
+            n[y][x] = glm::vec3(d.y, d.z, d.w);
         }
+
+    // Allocate vertices
+    int terrainVerts = width * height * 6;
+    int frameVerts   = (width * 2 + height * 2) * 6;
+    int bottomVerts  = 6;
+
+    vector<float> vertices(
+        (terrainVerts + frameVerts + bottomVerts) * numsPerVertex
+    );
+
+    int i = 0;
+
+    // Terrain
+    for (int x = 0; x < width; x++)
+        for (int y = 0; y < height; y++) {
+            emit(vertices, i,
+                 x * scale + offsetX,
+                 h[y][x] + offsetY,
+                 y * scale + offsetZ,
+                 n[y][x]);
+
+            emit(vertices, i,
+                 (x + 1) * scale + offsetX,
+                 h[y][x + 1] + offsetY,
+                 y * scale + offsetZ,
+                 n[y][x + 1]);
+
+            emit(vertices, i,
+                 x * scale + offsetX,
+                 h[y + 1][x] + offsetY,
+                 (y + 1) * scale + offsetZ,
+                 n[y + 1][x]);
+
+            emit(vertices, i,
+                 (x + 1) * scale + offsetX,
+                 h[y][x + 1] + offsetY,
+                 y * scale + offsetZ,
+                 n[y][x + 1]);
+
+            emit(vertices, i,
+                 (x + 1) * scale + offsetX,
+                 h[y + 1][x + 1] + offsetY,
+                 (y + 1) * scale + offsetZ,
+                 n[y + 1][x + 1]);
+
+            emit(vertices, i,
+                 x * scale + offsetX,
+                 h[y + 1][x] + offsetY,
+                 (y + 1) * scale + offsetZ,
+                 n[y + 1][x]);
+        }
+
+
+    // Frame
+    for (int x = 0; x < width; x++) {
+        float x0 = x * scale + offsetX;
+        float x1 = (x + 1) * scale + offsetX;
+        float zF = offsetZ;
+        float zB = height * scale + offsetZ;
+
+        emit(vertices, i, x0, h[0][x] + offsetY, zF, {0, 0, -1});
+        emit(vertices, i, x0, bottomY, zF, {0, 0, -1});
+        emit(vertices, i, x1, h[0][x + 1] + offsetY, zF, {0, 0, -1});
+        emit(vertices, i, x1, h[0][x + 1] + offsetY, zF, {0, 0, -1});
+        emit(vertices, i, x0, bottomY, zF, {0, 0, -1});
+        emit(vertices, i, x1, bottomY, zF, {0, 0, -1});
+
+        emit(vertices, i, x0, h[height][x] + offsetY, zB, {0, 0, 1});
+        emit(vertices, i, x1, h[height][x + 1] + offsetY, zB, {0, 0, 1});
+        emit(vertices, i, x0, bottomY, zB, {0, 0, 1});
+        emit(vertices, i, x1, h[height][x + 1] + offsetY, zB, {0, 0, 1});
+        emit(vertices, i, x1, bottomY, zB, {0, 0, 1});
+        emit(vertices, i, x0, bottomY, zB, {0, 0, 1});
     }
 
-    if (!doNoise) {
-        return vertices;
+    for (int y = 0; y < height; y++) {
+        float z0 = y * scale + offsetZ;
+        float z1 = (y + 1) * scale + offsetZ;
+        float xL = offsetX;
+        float xR = width * scale + offsetX;
+
+        emit(vertices, i, xL, h[y + 1][0] + offsetY, z1, {-1, 0, 0});
+        emit(vertices, i, xL, bottomY, z0, {-1, 0, 0});
+        emit(vertices, i, xL, h[y][0] + offsetY, z0, {-1, 0, 0});
+        emit(vertices, i, xL, bottomY, z1, {-1, 0, 0});
+        emit(vertices, i, xL, bottomY, z0, {-1, 0, 0});
+        emit(vertices, i, xL, h[y + 1][0] + offsetY, z1, {-1, 0, 0});
+
+        emit(vertices, i, xR, bottomY, z0, {1, 0, 0});
+        emit(vertices, i, xR, h[y + 1][width] + offsetY, z1, {1, 0, 0});
+        emit(vertices, i, xR, h[y][width] + offsetY, z0, {1, 0, 0});
+        emit(vertices, i, xR, bottomY, z0, {1, 0, 0});
+        emit(vertices, i, xR, bottomY, z1, {1, 0, 0});
+        emit(vertices, i, xR, h[y + 1][width] + offsetY, z1, {1, 0, 0});
     }
-    vector<vector<float>> heightMap = generateNoiseMap(width + 2, height + 2, 5, 0.5, 10, 123);
-    for (i = 0; i < vertices.size(); i += numsPerVertex) {
-        int x = (vertices[i] - offsetX) / scale;
-        int z = (vertices[i + 2] - offsetZ) / scale;
-        cout << x << " " << z << endl;
-        float noiseVal = heightMap[x][z];
-        vertices[i + 1] += noiseVal * noiseScale;
-    }
 
-    for (i = 0; i < vertices.size(); i += numsPerVertex * 3) {
-        glm::vec3 p1 = glm::vec3(vertices[i + 0], vertices[i + 1], vertices[i + 2]);
-        glm::vec3 p2 = glm::vec3(vertices[i + 0 + numsPerVertex], vertices[i + 1 + numsPerVertex], vertices[i + 2 + numsPerVertex]);
-        glm::vec3 p3 = glm::vec3(vertices[i + 0 + numsPerVertex * 2], vertices[i + 1 + numsPerVertex * 2], vertices[i + 2] + numsPerVertex * 2);
-        glm::vec3 normal = calculateSurfaceNormal(p1, p2, p3);
 
-        vertices[i + 3] = normal.x * noiseScale;
-        vertices[i + 4] = normal.y * noiseScale;
-        vertices[i + 5] = normal.z * noiseScale;
+    // Bottom plane
+    glm::vec3 up(0, 1, 0);
+    float x0 = offsetX;
+    float x1 = width * scale + offsetX;
+    float z0 = offsetZ;
+    float z1 = height * scale + offsetZ;
 
-        vertices[i + 3 + numsPerVertex] = normal.x * noiseScale;
-        vertices[i + 4 + numsPerVertex] = normal.y * noiseScale;
-        vertices[i + 5 + numsPerVertex] = normal.z * noiseScale;
+    emit(vertices, i, x0, bottomY, z0, up);
+    emit(vertices, i, x1, bottomY, z0, up);
+    emit(vertices, i, x0, bottomY, z1, up);
+    emit(vertices, i, x1, bottomY, z0, up);
+    emit(vertices, i, x1, bottomY, z1, up);
+    emit(vertices, i, x0, bottomY, z1, up);
 
-        vertices[i + 3 + numsPerVertex * 2] = normal.x * noiseScale;
-        vertices[i + 4 + numsPerVertex * 2] = normal.y * noiseScale;
-        vertices[i + 5 + numsPerVertex * 2] = normal.z * noiseScale;
-    }
-    cout << vertices.size() << endl;
     return vertices;
 }

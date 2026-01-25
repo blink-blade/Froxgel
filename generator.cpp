@@ -126,6 +126,21 @@ vector<vector<float>> generateNoiseMap(int noiseWidth, int noiseHeight, int laye
     return noiseMap;
 }
 
+float layeredNoise(int x, int y, int layerAmount, float frequency, float noiseAmplitude, unsigned int newSeed) {
+    unsigned int * pSeed = &seed;
+    *pSeed = newSeed;
+    float amp = 1;
+    float val = 0;
+    for (int i = 0; i < layerAmount; i++) {
+        val += noise((float)x * frequency, (float)y * frequency) * amp;
+
+        frequency *= 2;
+        amp /= 2;
+    }
+
+    return val * noiseAmplitude;
+}
+
 // This is for getting the noise values with python.
 float getNoiseValue(int x, int y) {
     return mapNoiseMap[y][x];

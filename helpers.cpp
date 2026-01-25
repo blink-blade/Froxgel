@@ -149,3 +149,7 @@ unsigned int loadTexture(char const * path, bool linearFiltering = false) {
 
     return textureID;
 }
+
+int xyToI(int x, int y, int width) {
+    return x + width*y;
+}

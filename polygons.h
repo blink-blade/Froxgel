@@ -7,6 +7,18 @@ using namespace std;
 
 extern std::vector<float> generateSphere(float radius, unsigned int sectorCount, unsigned int stackCount);
 extern std::vector<float> generateSphereVerticesFlat(float radius, unsigned int sectorCount, unsigned int stackCount);
-extern vector<float> generateGrid(int width, int height, int scale, int numsPerVertex, int offsetX, int offsetY, int offsetZ, bool doNoise = false, float noiseScale = 1.0);
+extern vector<float> generateGrid(
+    int width,
+    int height,
+    float scale,
+    int numsPerVertex,
+    float r = 0.992156862745f,
+    float g = 0.282352941176,
+    float b = 0.203921568627,
+    int offsetX = 0,
+    int offsetY = 0,
+    int offsetZ = 0,
+    float noiseAmplitude = 1.0f
+);
 
 #endif
