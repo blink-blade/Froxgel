@@ -20,7 +20,7 @@ int main() {
     MarchingCubes mc = MarchingCubes();
     vector<float> vertices = mc.GenerateVertices();
     Mesh sphere("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
-    vertices = generateIsland(10, 100, 100, 5, 0.992f, 0.282f,  0.203f, 5.0, 3.0, 5.0, 0, -20, 0, 5);
+    vertices = generateIsland(10, 175, 175, 5, 0.992f, 0.282f,  0.203f, 5.0, 3.0, 5.0, 0, -20, 0, 5);
     Mesh ground("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
     vertices = {
          0.0f,  0.0f, 0.0f,  1.0f, 1.0f,

@@ -50,7 +50,7 @@ public:
         shader.setVec3("offset", offset);
         shader.setFloat("time", timeValue);
         shader.setMat4("sunSpaceMatrix", sunProjection * sunCamera.GetViewMatrix());
-        shader.setVec3("dirLight.ambient", 0.1f * 1, 0.1f * 1, 0.1f * 1);
+        shader.setVec3("dirLight.ambient", 0.1f * 0.2, 0.1f * 0.2, 0.1f * 0.2f);
         shader.setVec3("dirLight.diffuse", 0.4f * 2, 0.4f * 2, 0.4f * 2);
         shader.setVec3("dirLight.specular", 0.5f * 2, 0.5f * 2, 0.5f * 2);
         shader.setVec3("dirLight.direction", sunDir.x, sunDir.y, sunDir.z);
