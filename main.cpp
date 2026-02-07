@@ -20,7 +20,7 @@ int main() {
     MarchingCubes mc = MarchingCubes();
     vector<float> vertices = mc.GenerateVertices();
     Mesh sphere("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
-    vertices = generateIsland(50, 100, 100, 25, 0, -100, 0, 25);
+    vertices = generateIsland(10, 100, 100, 25, 0.992156862745f, 0.282352941176,  0.203921568627, 5.0, 3.0, 5.0, 0, -100, 0, 25);
     Mesh ground("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
     vertices = {
          0.0f,  0.0f, 0.0f,  1.0f, 1.0f,
@@ -67,7 +67,7 @@ int main() {
         ground.draw(camera);
         skybox.draw(camera);
         sphere.draw(camera);
-        // screen.draw(camera);
+        screen.draw(camera);
         window.pollEvents();
     }
 

@@ -11,6 +11,27 @@
 
 using namespace std;
 
+auto computeNormal = [](float ax, float ay, float az,
+                    float bx, float by, float bz,
+                    float cx, float cy, float cz,
+                    float& nx, float& ny, float& nz) {
+    float ux = bx - ax;
+    float uy = by - ay;
+    float uz = bz - az;
+
+    float vx = cx - ax;
+    float vy = cy - ay;
+    float vz = cz - az;
+
+    nx = uy * vz - uz * vy;
+    ny = uz * vx - ux * vz;
+    nz = ux * vy - uy * vx;
+
+    float len = std::sqrt(nx * nx + ny * ny + nz * nz);
+    nx /= len;
+    ny /= len;
+    nz /= len;
+};
 glm::vec3 calculateSurfaceNormal(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3) {
     // Need to fix this function, it will only work for half of the triangles. Depending on the orientation of the triangles, the subtractions need done differently.
     glm::vec3 U = p3 - p1;
@@ -41,28 +62,6 @@ std::vector<float> generateSphereVerticesFlat(
         data.push_back(nz);
         data.push_back(u);
         data.push_back(v);
-    };
-
-    auto computeNormal = [](float ax, float ay, float az,
-                            float bx, float by, float bz,
-                            float cx, float cy, float cz,
-                            float& nx, float& ny, float& nz) {
-        float ux = bx - ax;
-        float uy = by - ay;
-        float uz = bz - az;
-
-        float vx = cx - ax;
-        float vy = cy - ay;
-        float vz = cz - az;
-
-        nx = uy * vz - uz * vy;
-        ny = uz * vx - ux * vz;
-        nz = ux * vy - uy * vx;
-
-        float len = std::sqrt(nx * nx + ny * ny + nz * nz);
-        nx /= len;
-        ny /= len;
-        nz /= len;
     };
 
     for (unsigned int i = 0; i < stackCount; ++i) {
@@ -129,7 +128,10 @@ std::vector<float> generateSphereVerticesFlat(
 std::vector<float> generateSphere(
     float radius,
     unsigned int sectorCount,  // longitude
-    unsigned int stackCount    // latitude
+    unsigned int stackCount,    // latitude
+    float r = -1,
+    float g = -1,
+    float b = -1
 ) {
     std::vector<float> data;
     const float PI = 3.14159265359f;
@@ -179,10 +181,18 @@ std::vector<float> generateSphere(
                 data.push_back(y * invLen);
                 data.push_back(z * invLen);
 
-                // UV
-                data.push_back(x * invLen);
-                data.push_back(y * invLen);
-                data.push_back(z * invLen);
+                // Color
+                if (r == -1) {
+                    data.push_back(x * invLen);
+                    data.push_back(y * invLen);
+                    data.push_back(z * invLen);
+                }
+                else {
+                    data.push_back(r);
+                    data.push_back(g);
+                    data.push_back(b);
+                }
+
             };
 
             // Triangle 1
@@ -370,12 +380,18 @@ vector<float> generateIsland(
     unsigned int sectorCount,  // longitude
     unsigned int stackCount,    // latitude
     float flatHeight,
+    float r = 0.992156862745f,
+    float g = 0.282352941176,
+    float b = 0.203921568627,
+    float scaleX = 1.0f,
+    float scaleY = 1.0f,
+    float scaleZ = 1.0f,
     int offsetX = 0,
     int offsetY = 0,
     int offsetZ = 0,
     float noiseAmplitude = 1.0f
 ) {
-    vector<float> sphereVertices = generateSphere(radius, sectorCount, stackCount);
+    vector<float> sphereVertices = generateSphere(radius, sectorCount, stackCount, r, g, b);
     for (int i = 0; i < sphereVertices.size(); i += 9) {
         float x = sphereVertices[i];
         float y = sphereVertices[i + 1];
@@ -385,13 +401,34 @@ vector<float> generateIsland(
         glm::vec3 noiseOffset = normal * noiseVal;
         if (y >= flatHeight) {
             y /= 10;
+            noiseOffset.y /= 3;
+            if (y < flatHeight) {y = flatHeight;}
         }
         x += noiseOffset.x;
         y += noiseOffset.y;
         z += noiseOffset.z;
-        sphereVertices[i] = x + offsetX;
-        sphereVertices[i + 1] = y + offsetY;
-        sphereVertices[i + 2] = z + offsetZ;
+        sphereVertices[i] = x * scaleX + offsetX;
+        sphereVertices[i + 1] = y * scaleY + offsetY;
+        sphereVertices[i + 2] = z * scaleZ + offsetZ;
+    }
+
+
+    // Now regenerate the normals.
+    for (int i = 0; i < sphereVertices.size() - 18; i += 27) {
+        float x1 = sphereVertices[i]; float y1 = sphereVertices[i + 1]; float z1 = sphereVertices[i + 2];
+        float x2 = sphereVertices[i + 9]; float y2 = sphereVertices[i + 10]; float z2 = sphereVertices[i + 11];
+        float x3 = sphereVertices[i + 18]; float y3 = sphereVertices[i + 19]; float z3 = sphereVertices[i + 20];
+        float nx, ny, nz;
+        computeNormal(
+            x3, y3, z3,
+            x2, y2, z2,
+            x1, y1, z1,
+            nx, ny, nz
+        );
+
+        sphereVertices[i + 3] = nx; sphereVertices[i + 4] = ny; sphereVertices[i + 5] = nz;
+        sphereVertices[i + 12] = nx; sphereVertices[i + 13] = ny; sphereVertices[i + 14] = nz;
+        sphereVertices[i + 21] = nx; sphereVertices[i + 22] = ny; sphereVertices[i + 23] = nz;
     }
     return sphereVertices;
 }
