@@ -33,7 +33,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, DirLight light, vec3 normal, vec
             shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;
         }
     }
-    shadow /= 9.0;
+    shadow /= 13.0;
 
     // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
     if(projCoords.z > 1.0)
@@ -48,8 +48,8 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     float diff = max(dot(normal, lightDir), 0.0);
     // specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
-    float shininess = 512.0;
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+    float shininess = 32.0;
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess) * 0.2;
     // combine results
     vec3 ambient  = light.ambient  * Color;
     vec3 diffuse  = light.diffuse  * diff * Color;
