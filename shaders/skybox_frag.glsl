@@ -41,7 +41,7 @@ float greatCircleDistance(vec3 p1, vec3 p2, float r) {
 
 vec3 getSunAddition() {
     float distance = greatCircleDistance(normalize(toCam), -dirLight.direction, 1.0f);
-    return (sunRGB * max(0.0f, 0.3f - distance)) * 5;
+    return (sunRGB * 3 * max(0.0f, 0.3f - distance)) * 5;
 }
 
 void main()
@@ -50,7 +50,7 @@ void main()
     float sinTime = sin(time * 0.07);
 
     // Get the main nebula color.
-    float noise = layeredNoise3D(toCam + vec3(0.0, 0.1, 0.0) * sinTime, 3, 2);
+    float noise = layeredNoise3D(toCam + vec3(0.0, 0.1, 0.0) * time / 10, 3, 2);
     vec3 nebula = vec3(
     layeredNoise3D(toCam + vec3(0.1, 0.0, 0.0) * sinTime, 4, 2),
     noise,

@@ -67,7 +67,7 @@ int main() {
         ground.draw(camera);
         skybox.draw(camera);
         sphere.draw(camera);
-        screen.draw(camera);
+        // screen.draw(camera);
         window.pollEvents();
     }
 
