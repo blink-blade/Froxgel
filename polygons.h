@@ -20,5 +20,14 @@ extern vector<float> generateGrid(
     int offsetZ = 0,
     float noiseAmplitude = 1.0f
 );
-
+extern vector<float> generateIsland(
+    float radius,
+    unsigned int sectorCount,  // longitude
+    unsigned int stackCount,    // latitude
+    float flatHeight,
+    int offsetX = 0,
+    int offsetY = 0,
+    int offsetZ = 0,
+    float noiseAmplitude = 1.0f
+);
 #endif

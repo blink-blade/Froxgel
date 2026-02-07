@@ -364,3 +364,34 @@ vector<float> generateGrid(
 
     return vertices;
 }
+
+vector<float> generateIsland(
+    float radius,
+    unsigned int sectorCount,  // longitude
+    unsigned int stackCount,    // latitude
+    float flatHeight,
+    int offsetX = 0,
+    int offsetY = 0,
+    int offsetZ = 0,
+    float noiseAmplitude = 1.0f
+) {
+    vector<float> sphereVertices = generateSphere(radius, sectorCount, stackCount);
+    for (int i = 0; i < sphereVertices.size(); i += 9) {
+        float x = sphereVertices[i];
+        float y = sphereVertices[i + 1];
+        float z = sphereVertices[i + 2];
+        glm::vec3 normal = glm::normalize(glm::vec3(x, y, z));
+        float noiseVal = layeredNoise3D(normal.x, normal.y, normal.z, 5, 1, noiseAmplitude, 100);
+        glm::vec3 noiseOffset = normal * noiseVal;
+        if (y >= flatHeight) {
+            y /= 10;
+        }
+        x += noiseOffset.x;
+        y += noiseOffset.y;
+        z += noiseOffset.z;
+        sphereVertices[i] = x + offsetX;
+        sphereVertices[i + 1] = y + offsetY;
+        sphereVertices[i + 2] = z + offsetZ;
+    }
+    return sphereVertices;
+}

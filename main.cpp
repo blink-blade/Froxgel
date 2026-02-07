@@ -8,6 +8,7 @@
 #include "camera.h"
 #include "controls.h"
 #include "filesystem.h"
+#include "marching_cubes.h"
 #include "mesh.h"
 #include "polygons.h"
 #include "skybox.h"
@@ -16,12 +17,11 @@ using namespace std;
 
 int main() {
     engineInits();
-    vector<float> vertices = generateSphere(5, 100, 100);
+    MarchingCubes mc = MarchingCubes();
+    vector<float> vertices = mc.GenerateVertices();
     Mesh sphere("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
-    vertices = generateGrid(250, 250, 0.5f, 9, 0.992, 0.282, 0.203, -62, -25, -62, 1.0f);
+    vertices = generateIsland(50, 100, 100, 25, 0, -100, 0, 25);
     Mesh ground("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
-    vertices = generateSphere(0.33, 100, 100);
-    Mesh sunSphere("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
     vertices = {
          0.0f,  0.0f, 0.0f,  1.0f, 1.0f,
          0.0f, -1.0f, 0.0f,  1.0f, 0.0f,
@@ -30,7 +30,6 @@ int main() {
         -1.0f,  0.0f, 0.0f,  0.0f, 1.0f,
         0.0f,  0.0f, 0.0f,  1.0f, 1.0f,
         -1.0f, -1.0f, 0.0f,  0.0f, 0.0f
-
     };
     Mesh screen("vec3 vec2", vertices, "screen", "screen");
     Skybox skybox("vec3 vec3 vec2", skyboxVertices, "skybox", "skybox");
@@ -45,12 +44,12 @@ int main() {
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
-        sphere.switchShader("depth", "depth");
         ground.switchShader("depth", "depth");
-        sphere.shaderUniformUpdates();
+        sphere.switchShader("depth", "depth");
         ground.shaderUniformUpdates();
-        sphere.draw(sunCamera);
+        sphere.shaderUniformUpdates();
         ground.draw(sunCamera);
+        sphere.draw(sunCamera);
 
         // Normal rendering
         glActiveTexture(GL_TEXTURE0);
@@ -59,18 +58,15 @@ int main() {
         glViewport(0, 0, window.width, window.height);
         glCullFace(GL_BACK);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        sphere.switchShader("simple_lighting", "simple_lighting");
         ground.switchShader("simple_lighting", "simple_lighting");
-        sunSphere.switchShader("simple_lighting", "simple_lighting");
-        sphere.shaderUniformUpdates();
+        sphere.switchShader("simple_lighting", "simple_lighting");
         ground.shaderUniformUpdates();
-        sunSphere.shaderUniformUpdates(glm::vec3(sunCamera.Position.x / 1, sunCamera.Position.y / 1, sunCamera.Position.z / 1));
         skybox.shaderUniformUpdates();
+        sphere.shaderUniformUpdates();
 
-        sphere.draw(camera);
         ground.draw(camera);
-        sunSphere.draw(camera);
         skybox.draw(camera);
+        sphere.draw(camera);
         // screen.draw(camera);
         window.pollEvents();
     }

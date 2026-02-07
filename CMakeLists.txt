@@ -32,6 +32,9 @@ add_executable(Froxgel
         mesh.cpp
         generator.h
         generator.cpp
+        marching_cubes.cpp
+        marching_cubes.h
+        marching_cubes.cpp
 )
 set_source_files_properties(external/glad/src/glad.c PROPERTIES LANGUAGE CXX)
 # Include directories
