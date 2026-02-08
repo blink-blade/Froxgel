@@ -53,8 +53,8 @@ void framebufferSizeCallback(GLFWwindow* wind, int width, int height) {
     projection = glm::perspective(glm::radians(camera.Fov), aspect, nearPlane, farPlane);
     sunProjection = glm::ortho(-(float)width / 10, (float)width / 10, -(float)height / 10, (float)height / 10, nearPlane, farPlane / 10);
     // sunProjection = glm::perspective(glm::radians(camera.Fov), aspect, nearPlane, farPlane);
-    window.width = width;
-    window.height = height;
+    window.Width = width;
+    window.Height = height;
     CHECK_FRAMEBUFFER_STATUS();
 }
 
@@ -98,7 +98,7 @@ void engineUpdates() {
     previousFrameTime = timeValue;
     processInput();
     glFrontFace(GL_CW);
-    glEnable(GL_CULL_FACE);
+    // glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

@@ -9,7 +9,7 @@ using namespace std;
 class Window {
 public:
     GLFWwindow* GLFWWindow;
-    int width, height;
+    int Width, Height;
     Window() {
         if (!glfwInit()) {
             throw std::invalid_argument("Failed to initialize GLFW");
@@ -22,7 +22,7 @@ public:
         }
 
         glfwMakeContextCurrent(GLFWWindow);
-        glfwGetWindowSize(GLFWWindow, &width, &height);
+        glfwGetWindowSize(GLFWWindow, &Width, &Height);
 
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
             throw std::invalid_argument("Failed to initialize GLAD");
@@ -31,16 +31,16 @@ public:
         cout << "OpenGL version: " << glGetString(GL_VERSION) << "\n";
     }
 
-    bool shouldClose() const {
+    bool ShouldClose() const {
         return glfwWindowShouldClose(GLFWWindow);
     }
 
-    void pollEvents() const {
+    void PollEvents() const {
         glfwSwapBuffers(GLFWWindow);
         glfwPollEvents();
     }
 
-    static void shutDown() {
+    static void ShutDown() {
         glfwTerminate();
     }
 

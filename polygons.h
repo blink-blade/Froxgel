@@ -5,15 +5,19 @@
 
 using namespace std;
 
-extern std::vector<float> generateSphere(
+extern void computeNormal(float ax, float ay, float az,
+                    float bx, float by, float bz,
+                    float cx, float cy, float cz,
+                    float& nx, float& ny, float& nz);
+extern std::vector<float> GenerateSphere(
     float radius,
     unsigned int sectorCount,  // longitude
     unsigned int stackCount,    // latitude
     float r = -1,
     float g = -1,
     float b = -1);
-extern std::vector<float> generateSphereVerticesFlat(float radius, unsigned int sectorCount, unsigned int stackCount);
-extern vector<float> generateGrid(
+extern std::vector<float> GenerateSphereVerticesFlat(float radius, unsigned int sectorCount, unsigned int stackCount);
+extern vector<float> GenerateGrid(
     int width,
     int height,
     float scale,
@@ -26,7 +30,7 @@ extern vector<float> generateGrid(
     int offsetZ = 0,
     float noiseAmplitude = 1.0f
 );
-extern vector<float> generateIsland(
+extern vector<float> GenerateIsland(
     float radius,
     unsigned int sectorCount,  // longitude
     unsigned int stackCount,    // latitude

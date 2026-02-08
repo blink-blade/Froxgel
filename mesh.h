@@ -29,7 +29,7 @@ public:
 
 
     Mesh(string vertexFormatRawArg, vector<float> vertexDataArg, string vertex, string frag) {
-        switchShader(vertex, frag);
+        SwitchShader(vertex, frag);
         vertexData = std::move(vertexDataArg);
         vertexFormatRaw = std::move(vertexFormatRawArg);
         vertexFormatTerms = splitString(vertexFormatRaw, ' ');
@@ -40,12 +40,12 @@ public:
         initBuffers();
     }
 
-    void switchShader(string vertex, string frag) {
+    void SwitchShader(string vertex, string frag) {
         shader = Shader();
         shader.init(vertex.c_str(), frag.c_str());
     }
 
-    void shaderUniformUpdates(glm::vec3 offset = glm::vec3(0.0f)) const {
+    void ShaderUniformUpdates(glm::vec3 offset = glm::vec3(0.0f)) const {
         shader.use();
         shader.setVec3("offset", offset);
         shader.setFloat("time", timeValue);
@@ -56,7 +56,7 @@ public:
         shader.setVec3("dirLight.direction", sunDir.x, sunDir.y, sunDir.z);
     }
 
-    void draw(Camera cam) const {
+    void Draw(Camera cam) const {
         shader.use();
         shader.setVec3("cameraPos", cam.Position);
         shader.setMat4("spaceMatrix", projection * cam.GetViewMatrix());
@@ -78,7 +78,7 @@ private:
             if (i > 0) {
                 offset = std::accumulate(vertexFormatGroups.begin(), vertexFormatGroups.begin() + i, 0) * sizeof(float);
             }
-            glVertexAttribPointer(i, size, GL_FLOAT, GL_FALSE, vertexStride, (void*)offset);
+            glVertexAttribPointer(i, size, GL_FLOAT, GL_FALSE, vertexStride, reinterpret_cast<void *>(offset));
             glEnableVertexAttribArray(i);
         }
 

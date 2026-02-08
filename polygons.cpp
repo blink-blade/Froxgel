@@ -11,7 +11,7 @@
 
 using namespace std;
 
-auto computeNormal = [](float ax, float ay, float az,
+void computeNormal(float ax, float ay, float az,
                     float bx, float by, float bz,
                     float cx, float cy, float cz,
                     float& nx, float& ny, float& nz) {
@@ -32,18 +32,9 @@ auto computeNormal = [](float ax, float ay, float az,
     ny /= len;
     nz /= len;
 };
-glm::vec3 calculateSurfaceNormal(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3) {
-    // Need to fix this function, it will only work for half of the triangles. Depending on the orientation of the triangles, the subtractions need done differently.
-    glm::vec3 U = p3 - p1;
-    glm::vec3 V = p2 - p1;
 
-    glm::vec3 normal((U.y * V.z) - (U.z * V.y), (U.z * V.x) - (U.x * V.z), (U.x * V.y) - (U.y * V.x));
-
-    return glm::normalize(normal);
-}
-
-// A function that I stole from chatGPT like an absolute genius would. ():
-std::vector<float> generateSphereVerticesFlat(
+// A function that I stole from chatGPT like an absolute genius would. (:
+std::vector<float> GenerateSphereVerticesFlat(
     float radius,
     unsigned int sectorCount,
     unsigned int stackCount
@@ -125,7 +116,7 @@ std::vector<float> generateSphereVerticesFlat(
     return data;
 }
 
-std::vector<float> generateSphere(
+std::vector<float> GenerateSphere(
     float radius,
     unsigned int sectorCount,  // longitude
     unsigned int stackCount,    // latitude
@@ -210,7 +201,7 @@ std::vector<float> generateSphere(
     return data;
 }
 
-vector<float> generateGrid(
+vector<float> GenerateGrid(
     int width,
     int height,
     float scale,
@@ -375,7 +366,8 @@ vector<float> generateGrid(
     return vertices;
 }
 
-vector<float> generateIsland(
+// This was fun!
+vector<float> GenerateIsland(
     float radius,
     unsigned int sectorCount,  // longitude
     unsigned int stackCount,    // latitude
@@ -391,7 +383,7 @@ vector<float> generateIsland(
     int offsetZ = 0,
     float noiseAmplitude = 1.0f
 ) {
-    vector<float> sphereVertices = generateSphere(radius, sectorCount, stackCount, r, g, b);
+    vector<float> sphereVertices = GenerateSphere(radius, sectorCount, stackCount, r, g, b);
     for (int i = 0; i < sphereVertices.size(); i += 9) {
         float x = sphereVertices[i];
         float y = sphereVertices[i + 1];

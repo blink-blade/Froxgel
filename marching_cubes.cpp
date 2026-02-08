@@ -4,42 +4,138 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "generator.h"
+#include "marching_cubes_tables.h"
 #include "polygons.h"
 
-MarchingCubes::MarchingCubes()
-{
+MarchingCubes::MarchingCubes(float groundLevel, int gridSize) {
+    SurfaceLevel = groundLevel;
+    GridSize = gridSize;
+}
 
+Cube::Cube(MarchingCubes* marchingCubes) {
+    Marcher = marchingCubes;
+}
+
+float Cube::GetNoiseValue(const int x, const int y, const int z) const {
+    return Marcher->NoiseGrid[x][y][z];
+}
+
+void Cube::CalculateCubeConfigIndex() {
+    vector<int> values = {WBSGround, WBNGround, EBSGround, EBNGround, WTSGround, WTNGround, ETSGround, ETNGround};
+    for (int i = 0; i < 8; i++) {
+        if (values[i]) {
+            CubeIndex |= 1 << i;
+        }
+    }
+}
+
+// If the value is below ground level, return true.
+bool Cube::IsGround(float value) const {
+    return value < Marcher->SurfaceLevel;
+}
+
+// Initialize all variables, get noise values, decide what is air and what is not.
+void Cube::Init(int x, int y, int z) {
+    // x y z should be the west bottom south corner.
+    West = x; East = x + 1;
+    Bottom = y; Top = y + 1;
+    South = z; North = z + 1;
+    WBSLevel = GetNoiseValue(West, Bottom, South); WBSGround = IsGround(WBSLevel);
+    WBNLevel = GetNoiseValue(West, Bottom, North); WBNGround = IsGround(WBNLevel);
+    EBSLevel = GetNoiseValue(East, Bottom, South); EBSGround = IsGround(EBSLevel);
+    EBNLevel = GetNoiseValue(East, Bottom, North); EBNGround = IsGround(EBNLevel);
+    WTSLevel = GetNoiseValue(West, Top, South); WTSGround = IsGround(WTSLevel);
+    WTNLevel = GetNoiseValue(West, Top, North); WTNGround = IsGround(WTNLevel);
+    ETSLevel = GetNoiseValue(East, Top, South); ETSGround = IsGround(ETSLevel);
+    ETNLevel = GetNoiseValue(East, Top, North); ETNGround = IsGround(ETNLevel);
+    CalculateCubeConfigIndex();
+    vector corners = {
+        glm::vec3(West, Bottom, South),
+        glm::vec3(West, Bottom, North),
+        glm::vec3(East, Bottom, South),
+        glm::vec3(East, Bottom, North),
+        glm::vec3(West, Top, South),
+        glm::vec3(West, Top, North),
+        glm::vec3(East, Top, South),
+        glm::vec3(East, Top, North)
+    };
+    const int *triangulation = triTable[CubeIndex];
+    for (int i = 0; i < 16; i++) {
+        int edgeIndex = triangulation[i];
+        if (edgeIndex == -1) {
+            continue;
+        }
+        int indexA = cornerIndexAFromEdge[edgeIndex];
+        int indexB = cornerIndexBFromEdge[edgeIndex];
+
+        glm::vec3 vertex = (corners[indexA] + corners[indexB]) * 0.5f;
+
+        Marcher->Stewart.push_back(vertex.x);
+        Marcher->Stewart.push_back(vertex.y);
+        Marcher->Stewart.push_back(vertex.z);
+        Marcher->Stewart.push_back(1.0f);
+        Marcher->Stewart.push_back(1.0f);
+        Marcher->Stewart.push_back(1.0f);
+        Marcher->Stewart.push_back(1.0f);
+        Marcher->Stewart.push_back(1.0f);
+        Marcher->Stewart.push_back(1.0f);
+    }
+}
+
+void MarchingCubes::GenerateNoise()
+{
+    // Clear all the cubes from memory.
+    NoiseGrid.clear();
+    // Allocate and initialize all the cubes, generating their noise values, deciding what is air and what is not, ect.
+    int noiseGridSize = GridSize + 1;
+    NoiseGrid.resize(noiseGridSize);
+    for (int x = 0; x < noiseGridSize; x++) {
+        NoiseGrid[x].resize(noiseGridSize);
+        for (int y = 0; y < noiseGridSize; y++) {
+            NoiseGrid[x][y].resize(noiseGridSize);
+            for (int z = 0; z < noiseGridSize; z++) {
+                NoiseGrid[x][y][z] = layeredNoise3D(x, y, z, 1, 0.07, 2.0f, 100);
+            }
+        }
+    }
 }
 
 vector<float> MarchingCubes::GenerateVertices()
 {
-    // for (int x = 0; x < 25; x++) {
-    //     for (int y = 0; y < 25; y++) {
-    //         cout << "[";
-
-    //         cout << "]" << endl;
-    //     }
-    //     cout << endl;
-    // }
-    for (int x = 0; x < 2500; x++) {
-        for (int y = 0; y < 25; y++) {
-            for (int z = 0; z < 25; z++) {
-                float noise = layeredNoise3D(x / 10, y, z, 5, 0.07, 1.0f, 100);
-                // Clamp just in case
-                if (noise < 0.0f) noise = 0.0f;
-                if (noise > 1.0f) noise = 1.0f;
-
-                int brightness = static_cast<int>(noise * 255.0f);
-
-                cout << "\033[48;2;"
-                     << brightness << ";"
-                     << brightness << ";"
-                     << brightness << "m   ";
+    // Ready the vertex buffer.
+    Stewart.clear();
+    Stewart = {};
+    // Make sure to generate the noise before we have the cubes try to access the noise values.
+    GenerateNoise();
+    // Clear all the cubes from memory.
+    Cubes.clear();
+    // Allocate and initialize all the cubes, generating their noise values, deciding what is air and what is not, ect.
+    Cubes.resize(GridSize);
+    for (int x = 0; x < GridSize; x++) {
+        Cubes[x].resize(GridSize);
+        for (int y = 0; y < GridSize; y++) {
+            Cubes[x][y].resize(GridSize, this);
+            for (int z = 0; z < GridSize; z++) {
+                Cubes[x][y][z].Init(x, y, z);
             }
-            cout << "\033[0m\n"; // reset after each row
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        cout << endl << endl << endl;
     }
-    return generateSphere(5, 100, 100);;
+
+    for (int i = 0; i < Stewart.size() - 18; i += 27) {
+        float x1 = Stewart[i]; float y1 = Stewart[i + 1]; float z1 = Stewart[i + 2];
+        float x2 = Stewart[i + 9]; float y2 = Stewart[i + 10]; float z2 = Stewart[i + 11];
+        float x3 = Stewart[i + 18]; float y3 = Stewart[i + 19]; float z3 = Stewart[i + 20];
+        float nx, ny, nz;
+        computeNormal(
+            x3, y3, z3,
+            x2, y2, z2,
+            x1, y1, z1,
+            nx, ny, nz
+        );
+
+        Stewart[i + 3] = nx; Stewart[i + 4] = ny; Stewart[i + 5] = nz;
+        Stewart[i + 12] = nx; Stewart[i + 13] = ny; Stewart[i + 14] = nz;
+        Stewart[i + 21] = nx; Stewart[i + 22] = ny; Stewart[i + 23] = nz;
+    }
+    return Stewart;
 }

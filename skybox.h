@@ -13,8 +13,8 @@ class Skybox : public Mesh {
     public:
     using Mesh::Mesh;
 
-    void draw(Camera cam) const {
-        Mesh::draw(cam);
+    void Draw(Camera cam) const {
+        Mesh::Draw(cam);
     }
 };
 
