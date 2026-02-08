@@ -21,7 +21,7 @@ float Cube::GetNoiseValue(const int x, const int y, const int z) const {
 }
 
 void Cube::CalculateCubeConfigIndex() {
-    vector<int> values = {WBSGround, WBNGround, EBSGround, EBNGround, WTSGround, WTNGround, ETSGround, ETNGround};
+    bool values[8] = {WBSGround, EBSGround, EBNGround, WBNGround, WTSGround, ETSGround, ETNGround, WTNGround};
     for (int i = 0; i < 8; i++) {
         if (values[i]) {
             CubeIndex |= 1 << i;
@@ -34,6 +34,9 @@ bool Cube::IsGround(float value) const {
     return value < Marcher->SurfaceLevel;
 }
 
+glm::vec3 Cube::InterpolateVerts(glm::vec3 v1, glm::vec3 v2) {
+    return (v1 + v2) * 0.5f;
+}
 // Initialize all variables, get noise values, decide what is air and what is not.
 void Cube::Init(int x, int y, int z) {
     // x y z should be the west bottom south corner.
@@ -49,36 +52,50 @@ void Cube::Init(int x, int y, int z) {
     ETSLevel = GetNoiseValue(East, Top, South); ETSGround = IsGround(ETSLevel);
     ETNLevel = GetNoiseValue(East, Top, North); ETNGround = IsGround(ETNLevel);
     CalculateCubeConfigIndex();
-    vector corners = {
-        glm::vec3(West, Bottom, South),
-        glm::vec3(West, Bottom, North),
-        glm::vec3(East, Bottom, South),
-        glm::vec3(East, Bottom, North),
-        glm::vec3(West, Top, South),
-        glm::vec3(West, Top, North),
-        glm::vec3(East, Top, South),
-        glm::vec3(East, Top, North)
+    vector<glm::vec3> corners = {
+        glm::vec3(West, Bottom, South),  // 0
+        glm::vec3(East, Bottom, South),  // 1
+        glm::vec3(East, Bottom, North),  // 2
+        glm::vec3(West, Bottom, North),  // 3
+        glm::vec3(West, Top, South),     // 4
+        glm::vec3(East, Top, South),     // 5
+        glm::vec3(East, Top, North),     // 6
+        glm::vec3(West, Top, North)      // 7
     };
+    vector levels = {WBSLevel, EBSLevel, EBNLevel, WBNLevel, WTSLevel, ETSLevel, ETNLevel, WTNLevel};
     const int *triangulation = triTable[CubeIndex];
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; triangulation[i] != -1; i +=3) {
         int edgeIndex = triangulation[i];
         if (edgeIndex == -1) {
             continue;
         }
-        int indexA = cornerIndexAFromEdge[edgeIndex];
-        int indexB = cornerIndexBFromEdge[edgeIndex];
 
-        glm::vec3 vertex = (corners[indexA] + corners[indexB]) * 0.5f;
+        // Get indices of corner points A and B for each of the three edges
+        // of the cube that need to be joined to form the triangle.
+        int a0 = cornerIndexAFromEdge[triangulation[i]];
+        int b0 = cornerIndexBFromEdge[triangulation[i]];
 
-        Marcher->Stewart.push_back(vertex.x);
-        Marcher->Stewart.push_back(vertex.y);
-        Marcher->Stewart.push_back(vertex.z);
-        Marcher->Stewart.push_back(1.0f);
-        Marcher->Stewart.push_back(1.0f);
-        Marcher->Stewart.push_back(1.0f);
-        Marcher->Stewart.push_back(1.0f);
-        Marcher->Stewart.push_back(1.0f);
-        Marcher->Stewart.push_back(1.0f);
+        int a1 = cornerIndexAFromEdge[triangulation[i+1]];
+        int b1 = cornerIndexBFromEdge[triangulation[i+1]];
+
+        int a2 = cornerIndexAFromEdge[triangulation[i+2]];
+        int b2 = cornerIndexBFromEdge[triangulation[i+2]];
+
+        glm::vec3 vertexA = InterpolateVerts(corners[a0], corners[b0]);
+        glm::vec3 vertexB = InterpolateVerts(corners[a1], corners[b1]);
+        glm::vec3 vertexC = InterpolateVerts(corners[a2], corners[b2]);
+        Marcher->Stewart.push_back(vertexA.x);
+        Marcher->Stewart.push_back(vertexA.y);
+        Marcher->Stewart.push_back(vertexA.z);
+        Marcher->Stewart.insert(Marcher->Stewart.end(), {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f});
+        Marcher->Stewart.push_back(vertexB.x);
+        Marcher->Stewart.push_back(vertexB.y);
+        Marcher->Stewart.push_back(vertexB.z);
+        Marcher->Stewart.insert(Marcher->Stewart.end(), {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f});
+        Marcher->Stewart.push_back(vertexC.x);
+        Marcher->Stewart.push_back(vertexC.y);
+        Marcher->Stewart.push_back(vertexC.z);
+        Marcher->Stewart.insert(Marcher->Stewart.end(), {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f});
     }
 }
 
