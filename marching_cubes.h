@@ -40,7 +40,7 @@ public:
 
     float GetNoiseValue(int x, int y, int z) const;
 
-    static glm::vec3 InterpolateVerts(glm::vec3 p1, glm::vec3 p2);
+    glm::vec3 InterpolateVerts(glm::vec3 p1, glm::vec3 p2, float valp1, float valp2);
 
     void CalculateCubeConfigIndex();
 

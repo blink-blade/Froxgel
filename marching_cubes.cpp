@@ -34,8 +34,12 @@ bool Cube::IsGround(float value) const {
     return value < Marcher->SurfaceLevel;
 }
 
-glm::vec3 Cube::InterpolateVerts(glm::vec3 v1, glm::vec3 v2) {
-    return (v1 + v2) * 0.5f;
+glm::vec3 Cube::InterpolateVerts(glm::vec3 p1, glm::vec3 p2, float valp1, float valp2)
+{
+    float iso = Marcher->SurfaceLevel;
+
+    float t = (iso - valp1) / (valp2 - valp1);
+    return p1 + t * (p2 - p1);
 }
 // Initialize all variables, get noise values, decide what is air and what is not.
 void Cube::Init(int x, int y, int z) {
@@ -81,9 +85,10 @@ void Cube::Init(int x, int y, int z) {
         int a2 = cornerIndexAFromEdge[triangulation[i+2]];
         int b2 = cornerIndexBFromEdge[triangulation[i+2]];
 
-        glm::vec3 vertexA = InterpolateVerts(corners[a0], corners[b0]);
-        glm::vec3 vertexB = InterpolateVerts(corners[a1], corners[b1]);
-        glm::vec3 vertexC = InterpolateVerts(corners[a2], corners[b2]);
+        glm::vec3 vertexA = InterpolateVerts(corners[a0], corners[b0], levels[a0], levels[b0]);
+        glm::vec3 vertexB = InterpolateVerts(corners[a1], corners[b1], levels[a1], levels[b1]);
+        glm::vec3 vertexC = InterpolateVerts(corners[a2], corners[b2], levels[a2], levels[b2]);
+
         Marcher->Stewart.push_back(vertexA.x);
         Marcher->Stewart.push_back(vertexA.y);
         Marcher->Stewart.push_back(vertexA.z);
@@ -111,7 +116,7 @@ void MarchingCubes::GenerateNoise()
         for (int y = 0; y < noiseGridSize; y++) {
             NoiseGrid[x][y].resize(noiseGridSize);
             for (int z = 0; z < noiseGridSize; z++) {
-                NoiseGrid[x][y][z] = layeredNoise3D(x, y, z, 1, 0.07, 2.0f, 100);
+                NoiseGrid[x][y][z] = layeredNoise3D(x, y, z, 5, 0.07, 2.0f, 100);
             }
         }
     }
