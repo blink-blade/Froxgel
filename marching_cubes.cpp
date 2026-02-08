@@ -88,18 +88,17 @@ void Cube::Init(int x, int y, int z) {
         glm::vec3 vertexA = InterpolateVerts(corners[a0], corners[b0], levels[a0], levels[b0]);
         glm::vec3 vertexB = InterpolateVerts(corners[a1], corners[b1], levels[a1], levels[b1]);
         glm::vec3 vertexC = InterpolateVerts(corners[a2], corners[b2], levels[a2], levels[b2]);
-
-        Marcher->Stewart.push_back(vertexA.x);
-        Marcher->Stewart.push_back(vertexA.y);
-        Marcher->Stewart.push_back(vertexA.z);
+        Marcher->Stewart.push_back(vertexC.x);
+        Marcher->Stewart.push_back(vertexC.y);
+        Marcher->Stewart.push_back(vertexC.z);
         Marcher->Stewart.insert(Marcher->Stewart.end(), {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f});
         Marcher->Stewart.push_back(vertexB.x);
         Marcher->Stewart.push_back(vertexB.y);
         Marcher->Stewart.push_back(vertexB.z);
         Marcher->Stewart.insert(Marcher->Stewart.end(), {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f});
-        Marcher->Stewart.push_back(vertexC.x);
-        Marcher->Stewart.push_back(vertexC.y);
-        Marcher->Stewart.push_back(vertexC.z);
+        Marcher->Stewart.push_back(vertexA.x);
+        Marcher->Stewart.push_back(vertexA.y);
+        Marcher->Stewart.push_back(vertexA.z);
         Marcher->Stewart.insert(Marcher->Stewart.end(), {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f});
     }
 }
@@ -116,7 +115,8 @@ void MarchingCubes::GenerateNoise()
         for (int y = 0; y < noiseGridSize; y++) {
             NoiseGrid[x][y].resize(noiseGridSize);
             for (int z = 0; z < noiseGridSize; z++) {
-                NoiseGrid[x][y][z] = layeredNoise3D(x, y, z, 5, 0.07, 2.0f, 100);
+                NoiseGrid[x][y][z] = layeredNoise3D(x, y, z, 1, 0.07, 2.0f, 100);
+                // NoiseGrid[x][y][z] = glm::length(glm::vec3(x, y, z) - glm::vec3(GridSize / 2)) / 100;
             }
         }
     }

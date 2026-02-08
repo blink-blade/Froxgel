@@ -17,7 +17,7 @@ using namespace std;
 
 int main() {
     engineInits();
-    MarchingCubes mc = MarchingCubes(0.2, 75);
+    MarchingCubes mc = MarchingCubes(0.2, 100);
     vector<float> vertices = mc.GenerateVertices();
     Mesh sphere("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
     vertices = GenerateIsland(10, 50, 50, 5, 0.992f, 0.282f,  0.203f, 5.0, 3.0, 5.0, 0, -20, 0, 5);
