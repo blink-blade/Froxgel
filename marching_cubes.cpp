@@ -115,8 +115,9 @@ void MarchingCubes::GenerateNoise()
         for (int y = 0; y < noiseGridSize; y++) {
             NoiseGrid[x][y].resize(noiseGridSize);
             for (int z = 0; z < noiseGridSize; z++) {
-                NoiseGrid[x][y][z] = layeredNoise3D(x, y, z, 1, 0.07, 2.0f, 100);
+                // NoiseGrid[x][y][z] = layeredNoise3D(x, y, z, 1, 0.07, 2.0f, 100);
                 // NoiseGrid[x][y][z] = glm::length(glm::vec3(x, y, z) - glm::vec3(GridSize / 2)) / 100;
+                NoiseGrid[x][y][z] = (sin(x / 5) + sin(y / 5) + sin(z / 5));
             }
         }
     }
