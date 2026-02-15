@@ -196,83 +196,97 @@ private:
 
 class ComputeShader {
 public:
-    unsigned int ID, SSBO, size;
-    int elementCount;
-    glm::vec3 workGroupAmount;
+    GLuint ID = 0;
+    int SizeBytes;
+    unsigned int SSBO;
+    glm::uvec3 DispatchSize = {1, 1, 1};
 
-    void init(const char* shaderPathArg, int wGSX, int wGSY, int wGSZ)
+    // =============================
+    // Compile
+    // =============================
+    void init(const char* name)
     {
-        std::string shaderPath   = elaboratePath(shaderPathArg, "comp");
-        // Generate the SSBO
-        glGenBuffers(1, &SSBO);
-        changeWorkGroupAmount(wGSX, wGSY, wGSZ);
+        std::string path = elaboratePath(name, "comp");
+        std::string code = loadFile(path);
 
-        // 1. retrieve the vertex/fragment source code from filePath
-        std::string code;
-        std::ifstream shaderFile;
-        // ensure ifstream objects can throw exceptions:
-        shaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-        try
-        {
-            // open files
-            shaderFile.open(shaderPath);
-            std::stringstream shaderStream;
-            // read file's buffer contents into streams
-            shaderStream << shaderFile.rdbuf();
-            // close file handlers
-            shaderFile.close();
-            // convert stream into string
-            code = shaderStream.str();
-        }
-        catch (std::ifstream::failure& e)
-        {
-            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
-        }
+        const char* src = code.c_str();
 
-        const char* shaderCode = code.c_str();
+        GLuint shader = glCreateShader(GL_COMPUTE_SHADER);
+        glShaderSource(shader, 1, &src, nullptr);
+        glCompileShader(shader);
+        checkCompileErrors(shader, "COMPUTE");
 
-        // 2. compile shaders
-        unsigned int compute;
-        // vertex shader
-        compute = glCreateShader(GL_COMPUTE_SHADER);
-        glShaderSource(compute, 1, &shaderCode, NULL);
-        glCompileShader(compute);
-        checkCompileErrors(compute, "COMPUTE");
-
-        // shader Program
         ID = glCreateProgram();
-        glAttachShader(ID, compute);
+        glAttachShader(ID, shader);
         glLinkProgram(ID);
         checkCompileErrors(ID, "PROGRAM");
 
-        // delete the shaders as they're linked into our program now and no longer necessary
-        glDeleteShader(compute);
+        glDeleteShader(shader);
     }
-    // activate the shader
-    // ------------------------------------------------------------------------
-    void use() {
+
+    void use() const
+    {
         glUseProgram(ID);
-        // glMemoryBarrier(GL_ALL_BARRIER_BITS);
     }
-    void dispatch() {
-        glDispatchCompute(workGroupAmount.x, workGroupAmount.y, 1);
-        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-    }
-    void changeWorkGroupAmount(int wGSX, int wGSY, int wGSZ) {
-        workGroupAmount.x = wGSX;
-        workGroupAmount.y = wGSY;
-        workGroupAmount.z = wGSZ;
-        elementCount = workGroupAmount.x * workGroupAmount.y * workGroupAmount.z;
-        size = elementCount * sizeof(glm::vec4);
 
-        // Update the SSBO
+    // =============================
+    // Dispatch
+    // =============================
+    void setDispatchSize(GLuint x, GLuint y, GLuint z)
+    {
+        DispatchSize = {x, y, z};
+    }
+
+    void dispatch() const
+    {
+        glDispatchCompute(DispatchSize.x,
+                          DispatchSize.y,
+                          DispatchSize.z);
+    }
+
+    // =============================
+    // SSBO Utilities
+    // =============================
+    void CreateSSBO(GLsizeiptr sizeBytes,
+                      GLuint binding,
+                      GLenum usage = GL_DYNAMIC_DRAW)
+    {
+        SizeBytes = sizeBytes;
+        glGenBuffers(1, &SSBO);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
-
-        glBufferData(GL_SHADER_STORAGE_BUFFER, wGSX * wGSY * 1 * sizeof(glm::vec4), nullptr, GL_DYNAMIC_READ);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SSBO);
+        glBufferData(GL_SHADER_STORAGE_BUFFER,
+                     sizeBytes,
+                     nullptr,
+                     usage);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER,
+                         binding,
+                         SSBO);
     }
-    // utility uniform functions
-    // ------------------------------------------------------------------------
+
+    void ResetCounter()
+    {
+        GLuint zero = 0;
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER,
+                        0,
+                        sizeof(GLuint),
+                        &zero);
+    }
+
+    GLuint ReadCounter()
+    {
+        GLuint value;
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
+        glGetBufferSubData(GL_SHADER_STORAGE_BUFFER,
+                           0,
+                           sizeof(GLuint),
+                           &value);
+        return value;
+    }
+
+    // =============================
+    // Utility uniform functions
+    // =============================
     void setBool(const string &name, bool value) const
     {
         glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
@@ -305,36 +319,61 @@ public:
     // ------------------------------------------------------------------------
 
 private:
-    static std::string elaboratePath(const char* base, const std::string& suffix) {
-        if (!base) return {};
-        return "shaders/" + std::string(base) + "_" + suffix + ".glsl";
+
+    static std::string elaboratePath(const char* base,
+                                     const std::string& suffix)
+    {
+        return "shaders/" + std::string(base)
+               + "_" + suffix + ".glsl";
     }
-    // utility function for checking shader compilation/linking errors.
-    // ------------------------------------------------------------------------
-    void checkCompileErrors(GLuint shader, std::string type)
+
+    static std::string loadFile(const std::string& path)
+    {
+        std::ifstream file(path);
+        if (!file)
+            throw std::runtime_error("Failed to open " + path);
+
+        std::stringstream ss;
+        ss << file.rdbuf();
+        return ss.str();
+    }
+
+    static void checkCompileErrors(GLuint obj,
+                                   const std::string& type)
     {
         GLint success;
         GLchar infoLog[1024];
 
-        if(type != "PROGRAM")
+        if (type != "PROGRAM")
         {
-            glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-            if(!success)
+            glGetShaderiv(obj,
+                          GL_COMPILE_STATUS,
+                          &success);
+            if (!success)
             {
-                glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-                std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+                glGetShaderInfoLog(obj,
+                                   1024,
+                                   nullptr,
+                                   infoLog);
+                std::cout << "COMPUTE SHADER ERROR:\n"
+                          << infoLog << std::endl;
             }
         }
         else
         {
-            glGetProgramiv(shader, GL_LINK_STATUS, &success);
-            if(!success)
+            glGetProgramiv(obj,
+                           GL_LINK_STATUS,
+                           &success);
+            if (!success)
             {
-                glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-                std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+                glGetProgramInfoLog(obj,
+                                    1024,
+                                    nullptr,
+                                    infoLog);
+                std::cout << "PROGRAM LINK ERROR:\n"
+                          << infoLog << std::endl;
             }
         }
-
     }
 };
 #endif // SHADER_H

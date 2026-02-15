@@ -17,9 +17,16 @@ using namespace std;
 
 int main() {
     engineInits();
-    MarchingCubes mc = MarchingCubes(0.2, 100);
+
+    ComputeShader mcComp;
+    mcComp.init("marching_cubes");
+    mcComp.setDispatchSize(1, 1, 1);
+    size_t bufferSize = sizeof(glm::vec4) + 50 * 50 * 6 * sizeof(glm::vec4);
+    mcComp.CreateSSBO(bufferSize, 0, GL_DYNAMIC_DRAW);
+
+    MarchingCubes mc = MarchingCubes(0.2, 5);
     vector<float> vertices = mc.GenerateVertices();
-    Mesh sphere("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
+    GPUMesh mcm("vec4", "marching_cubes", "marching_cubes", mcComp.SSBO, sizeof(glm::vec4));
     vertices = GenerateIsland(10, 50, 50, 5, 0.992f, 0.282f,  0.203f, 5.0, 3.0, 5.0, 0, -20, 0, 5);
     Mesh ground("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
     vertices = {
@@ -31,6 +38,7 @@ int main() {
         0.0f,  0.0f, 0.0f,  1.0f, 1.0f,
         -1.0f, -1.0f, 0.0f,  0.0f, 0.0f
     };
+
     Mesh screen("vec3 vec2", vertices, "screen", "screen");
     Skybox skybox("vec3 vec3 vec2", skyboxVertices, "skybox", "skybox");
     screen.shader.use();
@@ -39,17 +47,22 @@ int main() {
         engineUpdates();
         lightUpdates();
 
+        
+        mcComp.ResetCounter();
+        mcComp.use();
+        mcComp.dispatch();
+        
         // Shadow map rendering
         glCullFace(GL_BACK);
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
         ground.SwitchShader("depth", "depth");
-        sphere.SwitchShader("depth", "depth");
+        mcm.SwitchShader("depth", "depth");
         ground.ShaderUniformUpdates();
-        sphere.ShaderUniformUpdates();
+        mcm.ShaderUniformUpdates();
         ground.Draw(sunCamera);
-        sphere.Draw(sunCamera);
+        mcm.Draw(sunCamera, mcComp.ReadCounter());
 
         // Normal rendering
         glActiveTexture(GL_TEXTURE0);
@@ -59,14 +72,17 @@ int main() {
         glCullFace(GL_BACK);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         ground.SwitchShader("simple_lighting", "simple_lighting");
-        sphere.SwitchShader("simple_lighting", "simple_lighting");
+        mcm.SwitchShader("marching_cubes", "marching_cubes");
         ground.ShaderUniformUpdates();
         skybox.ShaderUniformUpdates();
-        sphere.ShaderUniformUpdates();
+        mcm.ShaderUniformUpdates();
 
         ground.Draw(camera);
         skybox.Draw(camera);
-        sphere.Draw(camera);
+
+
+        mcm.Draw(camera, mcComp.ReadCounter());
+        
         // screen.Draw(camera);
         window.PollEvents();
     }

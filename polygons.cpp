@@ -229,17 +229,20 @@ vector<float> GenerateGrid(
 
     // Generate noise
     ComputeShader gen;
-    gen.init("perlin", width + 1, height + 1, 1);
+    gen.init("perlin");
+    gen.setDispatchSize(width + 1, height + 1, 1);
+    size_t bufferSize = sizeof(GLuint) + gen.DispatchSize.x * gen.DispatchSize.y * gen.DispatchSize.z * sizeof(glm::vec4);
+    gen.CreateSSBO(bufferSize, 0, GL_DYNAMIC_READ);
     gen.use();
     gen.setInt("noiseHeight", height + 1);
     gen.setFloat("noiseAmplitude", noiseAmplitude);
     gen.dispatch();
 
-    vector<glm::vec4> img(gen.elementCount);
-    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, gen.size, img.data());
+    vector<glm::vec4> img(gen.DispatchSize.x * gen.DispatchSize.y * gen.DispatchSize.z);
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, gen.SizeBytes, img.data());
 
     auto idx = [&](int x, int y) {
-        return xyToI(x, y, gen.workGroupAmount.x);
+        return xyToI(x, y, gen.DispatchSize.x);
     };
 
     // Height & normals
