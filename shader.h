@@ -207,9 +207,24 @@ public:
     void init(const char* name)
     {
         std::string path = elaboratePath(name, "comp");
-        std::string code = loadFile(path);
 
-        const char* src = code.c_str();
+        std::string commonCode;
+        std::string computeCode;
+
+        try {
+            commonCode  = loadFile("shaders/common.glsl");
+            computeCode = loadFile(path);
+        }
+        catch (const std::exception& e) {
+            std::cerr << "ERROR::COMPUTE_SHADER::FILE_READ_FAILED\n"
+                      << e.what() << std::endl;
+            return;
+        }
+
+        // Prepend common.glsl just like the regular Shader class
+        computeCode = commonCode + "\n" + computeCode;
+
+        const char* src = computeCode.c_str();
 
         GLuint shader = glCreateShader(GL_COMPUTE_SHADER);
         glShaderSource(shader, 1, &src, nullptr);
@@ -223,6 +238,7 @@ public:
 
         glDeleteShader(shader);
     }
+
 
     void use() const
     {

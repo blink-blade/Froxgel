@@ -20,8 +20,8 @@ int main() {
 
     ComputeShader mcComp;
     mcComp.init("marching_cubes");
-    mcComp.setDispatchSize(1, 1, 1);
-    size_t bufferSize = sizeof(glm::vec4) + 50 * 50 * 6 * sizeof(glm::vec4);
+    mcComp.setDispatchSize(20, 20, 20);
+    size_t bufferSize = sizeof(glm::vec4) + 20 * 20 * 20 * 25 * 25 * 6 * sizeof(glm::vec4);
     mcComp.CreateSSBO(bufferSize, 0, GL_DYNAMIC_DRAW);
 
     MarchingCubes mc = MarchingCubes(0.2, 5);
@@ -43,15 +43,16 @@ int main() {
     Skybox skybox("vec3 vec3 vec2", skyboxVertices, "skybox", "skybox");
     screen.shader.use();
     screen.shader.setInt("shadowMap", 0);
+
     while (!window.ShouldClose()) {
         engineUpdates();
         lightUpdates();
 
-        
+
         mcComp.ResetCounter();
         mcComp.use();
+        mcComp.setFloat("time", timeValue);
         mcComp.dispatch();
-        
         // Shadow map rendering
         glCullFace(GL_BACK);
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
