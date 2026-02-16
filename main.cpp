@@ -35,6 +35,7 @@ int main() {
 
     mcComp.use();
     mcComp.setInt("gridSize", localSize * dispatchSize);
+    mcComp.setInt("surfaceLevel", 0.0);
     densityComp.use();
     densityComp.setInt("gridSize", localSize * dispatchSize);
 
