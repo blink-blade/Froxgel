@@ -23,11 +23,14 @@ void main() {
     uint index2 = index3D(id.x + 1, id.y, id.z + 1);
     uint index3 = index3D(id.x, id.y, id.z + 1);
 
+    if (density[index0] < -0.4) {
+        return;
+    }
     // 4 corners of the quad
-    vec4 v0 = vec4(id.x,     density[index0] + id.y * 100,     id.z, 1.0) / 5;
-    vec4 v1 = vec4(id.x + 1, density[index1] + id.y * 100,     id.z, 1.0) / 5;
-    vec4 v2 = vec4(id.x + 1, density[index2] + id.y * 100,     id.z + 1, 1.0) / 5;
-    vec4 v3 = vec4(id.x,     density[index3] + id.y * 100,     id.z + 1, 1.0) / 5;
+    vec4 v0 = vec4(id.x,     id.y,     id.z, 1.0) / 5;
+    vec4 v1 = vec4(id.x + 1, id.y,     id.z, 1.0) / 5;
+    vec4 v2 = vec4(id.x + 1, id.y,     id.z + 1, 1.0) / 5;
+    vec4 v3 = vec4(id.x,     id.y,     id.z + 1, 1.0) / 5;
 
     // Reserve space for 6 vertices (2 triangles)
     uint baseIndex = atomicAdd(vertexCount, 6);

@@ -15,5 +15,5 @@ void main()
 {
     uvec3 id = gl_GlobalInvocationID;
     uint index = index3D(id.x, id.y, id.z);
-    density[index] = layeredNoise3D(id.x, id.y, id.z, 1, 0.05) * 10;
+    density[index] = layeredNoise3D(id.x, id.y, id.z, 3, 0.05) * 10;
 }
