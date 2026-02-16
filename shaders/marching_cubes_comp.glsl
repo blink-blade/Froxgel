@@ -6,18 +6,18 @@ layout(std430, binding = 0) buffer VertexBuffer {
 
 void main() {
     vec3 texPos = vec3(gl_GlobalInvocationID.xyz) * 5;
-    for (int x = 0; x < 25; x++)
+    for (int x = 0; x < 5; x++)
     {
-        for (int y = 0; y < 25; y++)
+        for (int y = 0; y < 5; y++)
         {
-            float fx = float(x / 10) + texPos.x;
-            float fy = float(y / 10) + texPos.y;
+            float fx = float(x) + texPos.x;
+            float fy = float(y) + texPos.y;
 
             // 4 corners of the quad
             vec4 v0 = vec4(fx,     sin(time + x + y) + texPos.z,     fy, 1.0);
-            vec4 v1 = vec4(fx + 0.1, sin(time + x + y) + texPos.z,     fy, 1.0);
-            vec4 v2 = vec4(fx + 0.1, sin(time + x + y) + texPos.z,     fy + 0.1, 1.0);
-            vec4 v3 = vec4(fx,     sin(time + x + y) + texPos.z,     fy + 0.1, 1.0);
+            vec4 v1 = vec4(fx + 1, sin(time + x + y) + texPos.z,     fy, 1.0);
+            vec4 v2 = vec4(fx + 1, sin(time + x + y) + texPos.z,     fy + 1, 1.0);
+            vec4 v3 = vec4(fx,     sin(time + x + y) + texPos.z,     fy + 1, 1.0);
 
             // Reserve space for 6 vertices (2 triangles)
             uint baseIndex = atomicAdd(vertexCount, 6);

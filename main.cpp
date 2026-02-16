@@ -20,7 +20,7 @@ int main() {
 
     ComputeShader mcComp;
     mcComp.init("marching_cubes");
-    mcComp.setDispatchSize(20, 20, 20);
+    mcComp.setDispatchSize(5, 5, 5);
     size_t bufferSize = sizeof(glm::vec4) + 20 * 20 * 20 * 25 * 25 * 6 * sizeof(glm::vec4);
     mcComp.CreateSSBO(bufferSize, 0, GL_DYNAMIC_DRAW);
 
