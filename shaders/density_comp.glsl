@@ -14,6 +14,10 @@ uint index3D(uint x, uint y, uint z)
 void main()
 {
     uvec3 id = gl_GlobalInvocationID;
+    if (id.x >= gridSize ||
+    id.y >= gridSize ||
+    id.z >= gridSize)
+    return;
     uint index = index3D(id.x, id.y, id.z);
     density[index] = layeredNoise3D(id.x, id.y, id.z, 3, 0.05) * 10;
 }

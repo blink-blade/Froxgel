@@ -30,7 +30,7 @@ int main() {
     ComputeShader mcComp;
     mcComp.init("marching_cubes");
     mcComp.setDispatchSize(dispatchSize, dispatchSize, dispatchSize);
-    size_t bufferSize = sizeof(glm::vec4) + dispatchSize * dispatchSize * dispatchSize * localSize * localSize * localSize * 3 * sizeof(glm::vec4);
+    size_t bufferSize = sizeof(glm::vec4) + dispatchSize * dispatchSize * dispatchSize * localSize * localSize * localSize * 6 * 3 * sizeof(glm::vec4);
     unsigned int vertexSSBO = mcComp.CreateSSBO(bufferSize, 1, GL_DYNAMIC_DRAW);
 
     mcComp.use();
@@ -40,7 +40,7 @@ int main() {
 
     MarchingCubes mc = MarchingCubes(0.2, 5);
     vector<float> vertices = mc.GenerateVertices();
-    GPUMesh mcm("vec3 vec3 vec3", "simple_lighting", "simple_lighting", vertexSSBO, sizeof(glm::vec4));
+    GPUMesh mcm("vec4 vec4 vec4", "simple_lighting", "simple_lighting", vertexSSBO, sizeof(glm::vec4));
     vertices = GenerateIsland(10, 50, 50, 5, 0.992f, 0.282f,  0.203f, 5.0, 3.0, 5.0, 0, -20, 0, 5);
     Mesh ground("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
     vertices = {
@@ -99,7 +99,8 @@ int main() {
         ground.Draw(camera);
         skybox.Draw(camera);
 
-
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT |
+                        GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
         mcm.Draw(camera, mcComp.ReadCounter(vertexSSBO));
         
         // screen.Draw(camera);
