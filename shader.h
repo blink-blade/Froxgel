@@ -70,10 +70,10 @@ public:
         }
 
         // === Compile shaders ===
-        GLuint vertex = compileShader(GL_VERTEX_SHADER, vertexCode, "VERTEX");
-        GLuint fragment = compileShader(GL_FRAGMENT_SHADER, fragmentCode, "FRAGMENT");
+        unsigned int vertex = compileShader(GL_VERTEX_SHADER, vertexCode, "VERTEX");
+        unsigned int fragment = compileShader(GL_FRAGMENT_SHADER, fragmentCode, "FRAGMENT");
 
-        GLuint tessControl = 0, tessEval = 0;
+        unsigned int tessControl = 0, tessEval = 0;
         if (!tessControlPath.empty()) {
             tessControl = compileShader(GL_TESS_CONTROL_SHADER, tControlCode, "TESSELLATION CONTROL");
             tessEval    = compileShader(GL_TESS_EVALUATION_SHADER, tEvalCode, "TESSELLATION EVALUATION");
@@ -163,8 +163,8 @@ private:
     }
 
     // Compile shader
-    static GLuint compileShader(GLenum type, const std::string& source, const std::string& name) {
-        GLuint shader = glCreateShader(type);
+    static unsigned int compileShader(GLenum type, const std::string& source, const std::string& name) {
+        unsigned int shader = glCreateShader(type);
         const char* src = source.c_str();
         glShaderSource(shader, 1, &src, nullptr);
         glCompileShader(shader);
@@ -181,7 +181,7 @@ private:
     }
 
     // Link error check
-    static void checkLinkErrors(GLuint program) {
+    static void checkLinkErrors(unsigned int program) {
         GLint success;
         glGetProgramiv(program, GL_LINK_STATUS, &success);
         if (!success) {
@@ -196,9 +196,8 @@ private:
 
 class ComputeShader {
 public:
-    GLuint ID = 0;
+    unsigned int ID = 0;
     int SizeBytes;
-    unsigned int SSBO;
     glm::uvec3 DispatchSize = {1, 1, 1};
 
     // =============================
@@ -226,7 +225,7 @@ public:
 
         const char* src = computeCode.c_str();
 
-        GLuint shader = glCreateShader(GL_COMPUTE_SHADER);
+        unsigned int shader = glCreateShader(GL_COMPUTE_SHADER);
         glShaderSource(shader, 1, &src, nullptr);
         glCompileShader(shader);
         checkCompileErrors(shader, "COMPUTE");
@@ -239,7 +238,6 @@ public:
         glDeleteShader(shader);
     }
 
-
     void use() const
     {
         glUseProgram(ID);
@@ -248,7 +246,7 @@ public:
     // =============================
     // Dispatch
     // =============================
-    void setDispatchSize(GLuint x, GLuint y, GLuint z)
+    void setDispatchSize(unsigned int x, unsigned int y, unsigned int z)
     {
         DispatchSize = {x, y, z};
     }
@@ -263,39 +261,48 @@ public:
     // =============================
     // SSBO Utilities
     // =============================
-    void CreateSSBO(GLsizeiptr sizeBytes,
-                      GLuint binding,
-                      GLenum usage = GL_DYNAMIC_DRAW)
+    unsigned int CreateSSBO(GLsizeiptr sizeBytes,
+                      unsigned int binding,
+                      GLenum usage = GL_DYNAMIC_DRAW,
+                      const void* data = nullptr)
     {
-        SizeBytes = sizeBytes;
-        glGenBuffers(1, &SSBO);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
+        unsigned int buffer;
+        glGenBuffers(1, &buffer);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer);
         glBufferData(GL_SHADER_STORAGE_BUFFER,
                      sizeBytes,
-                     nullptr,
+                     data,
                      usage);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER,
                          binding,
-                         SSBO);
+                         buffer);
+        return buffer;
     }
 
-    void ResetCounter()
+    static void BindSSBO(unsigned int buffer, unsigned int binding)
     {
-        GLuint zero = 0;
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER,
+                         binding,
+                         buffer);
+    }
+
+    static void ResetCounter(unsigned int buffer)
+    {
+        unsigned int zero = 0;
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer);
         glBufferSubData(GL_SHADER_STORAGE_BUFFER,
                         0,
-                        sizeof(GLuint),
+                        sizeof(unsigned int),
                         &zero);
     }
 
-    GLuint ReadCounter()
+    static unsigned int ReadCounter(unsigned int buffer)
     {
-        GLuint value;
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
+        unsigned int value;
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer);
         glGetBufferSubData(GL_SHADER_STORAGE_BUFFER,
                            0,
-                           sizeof(GLuint),
+                           sizeof(unsigned int),
                            &value);
         return value;
     }
@@ -354,7 +361,7 @@ private:
         return ss.str();
     }
 
-    static void checkCompileErrors(GLuint obj,
+    static void checkCompileErrors(unsigned int obj,
                                    const std::string& type)
     {
         GLint success;
