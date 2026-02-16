@@ -19,5 +19,5 @@ void main()
     id.z >= gridSize)
     return;
     uint index = index3D(id.x, id.y, id.z);
-    density[index] = layeredNoise3D(id.x, id.y, id.z, 3, 0.05) * 10;
+    density[index] = layeredNoise3D(id.x + time * 4, id.y, id.z, 1, 0.05);
 }

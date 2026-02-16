@@ -68,7 +68,7 @@ void Cube::Init(int x, int y, int z) {
     };
     vector levels = {WBSLevel, EBSLevel, EBNLevel, WBNLevel, WTSLevel, ETSLevel, ETNLevel, WTNLevel};
     const int *triangulation = triTable[CubeIndex];
-    for (int i = 0; triangulation[i] != -1; i +=3) {
+    for (int i = 0; triangulation[i] != -1; i += 3) {
         int edgeIndex = triangulation[i];
         if (edgeIndex == -1) {
             continue;

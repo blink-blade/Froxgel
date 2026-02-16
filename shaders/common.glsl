@@ -228,6 +228,28 @@ struct DirLight {
 
 uniform DirLight dirLight;
 
+vec3 computeNormal(float ax, float ay, float az,
+                   float bx, float by, float bz,
+                   float cx, float cy, float cz) {
+    float ux = bx - ax;
+    float uy = by - ay;
+    float uz = bz - az;
+
+    float vx = cx - ax;
+    float vy = cy - ay;
+    float vz = cz - az;
+
+    float nx = uy * vz - uz * vy;
+    float ny = uz * vx - ux * vz;
+    float nz = ux * vy - uy * vx;
+
+    float len = sqrt(nx * nx + ny * ny + nz * nz);
+    nx /= len;
+    ny /= len;
+    nz /= len;
+    return vec3(nx, ny, nz);
+};
+
 
 
 const int edgeTable[256] = int[256](

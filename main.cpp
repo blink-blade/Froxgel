@@ -30,12 +30,11 @@ int main() {
     ComputeShader mcComp;
     mcComp.init("marching_cubes");
     mcComp.setDispatchSize(dispatchSize, dispatchSize, dispatchSize);
-    size_t bufferSize = sizeof(glm::vec4) + dispatchSize * dispatchSize * dispatchSize * localSize * localSize * localSize * 6 * 3 * sizeof(glm::vec4);
+    size_t bufferSize = sizeof(glm::vec4) + dispatchSize * dispatchSize * dispatchSize * localSize * localSize * localSize * 15 * (sizeof(glm::vec4) * 3);
     unsigned int vertexSSBO = mcComp.CreateSSBO(bufferSize, 1, GL_DYNAMIC_DRAW);
 
     mcComp.use();
     mcComp.setInt("gridSize", localSize * dispatchSize);
-    mcComp.setInt("surfaceLevel", 0.0);
     densityComp.use();
     densityComp.setInt("gridSize", localSize * dispatchSize);
 
@@ -58,17 +57,18 @@ int main() {
     Skybox skybox("vec3 vec3 vec2", skyboxVertices, "skybox", "skybox");
     screen.shader.use();
     screen.shader.setInt("shadowMap", 0);
-    densityComp.use();
-    densityComp.setFloat("time", timeValue);
-    densityComp.dispatch();
+
     while (!window.ShouldClose()) {
         engineUpdates();
         lightUpdates();
 
-
+        densityComp.use();
+        densityComp.setFloat("time", timeValue);
+        densityComp.dispatch();
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         mcComp.ResetCounter(vertexSSBO);
         mcComp.use();
+        mcComp.setFloat("surfaceLevel", 0.0);
         mcComp.setFloat("time", timeValue);
         mcComp.dispatch();
 
