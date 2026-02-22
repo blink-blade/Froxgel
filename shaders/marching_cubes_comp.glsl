@@ -96,24 +96,24 @@ void main() {
         int b2 = cornerIndexBFromEdge[triangulation[i+2]];
 
         Vertex vertexA = Vertex(
-            vec4(interpolateVerts(corners[a0], corners[b0], levels[a0], levels[b0]), 1.0),
+            vec4(interpolateVerts(corners[a0], corners[b0], levels[a0], levels[b0]), 1.0) / 8,
             vec4(1.0, 1.0, 1.0, 1.0),
             vec4(0.992, 0.282, 0.203, 1.0)
         );
         Vertex vertexB = Vertex(
-            vec4(interpolateVerts(corners[a1], corners[b1], levels[a1], levels[b1]), 1.0),
+            vec4(interpolateVerts(corners[a1], corners[b1], levels[a1], levels[b1]), 1.0) / 8,
             vec4(1.0, 1.0, 1.0, 1.0),
             vec4(0.992, 0.282, 0.203, 1.0)
         );
         Vertex vertexC = Vertex(
-            vec4(interpolateVerts(corners[a2], corners[b2], levels[a2], levels[b2]), 1.0),
+            vec4(interpolateVerts(corners[a2], corners[b2], levels[a2], levels[b2]), 1.0) / 8,
             vec4(1.0, 1.0, 1.0, 1.0),
             vec4(0.992, 0.282, 0.203, 1.0)
         );
         vec3 normal = computeNormal(
-                vertexC.position.x, vertexC.position.y, vertexC.position.z,
+                vertexA.position.x, vertexA.position.y, vertexA.position.z,
                 vertexB.position.x, vertexB.position.y, vertexB.position.z,
-                vertexA.position.x, vertexA.position.y, vertexA.position.z
+                vertexC.position.x, vertexC.position.y, vertexC.position.z
         );
         vertexA.normal = vec4(normal, 1.0);
         vertexB.normal = vec4(normal, 1.0);

@@ -39,6 +39,7 @@ public:
     }
 
     void SwitchShader(string vertex, string frag) {
+        // This is a memory leak, but I don't know why, and I don't want to fix it right now.
         shader = Shader();
         shader.init(vertex.c_str(), frag.c_str());
     }

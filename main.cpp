@@ -18,8 +18,8 @@ using namespace std;
 int main() {
     engineInits();
 
-    int dispatchSize = 5;
-    int localSize = 8;
+    int dispatchSize = 50;
+    int localSize = 4;
 
     ComputeShader densityComp;
     densityComp.init("density");
@@ -30,7 +30,7 @@ int main() {
     ComputeShader mcComp;
     mcComp.init("marching_cubes");
     mcComp.setDispatchSize(dispatchSize, dispatchSize, dispatchSize);
-    size_t bufferSize = sizeof(glm::vec4) + dispatchSize * dispatchSize * dispatchSize * localSize * localSize * localSize * 15 * (sizeof(glm::vec4) * 3);
+    size_t bufferSize = sizeof(glm::vec4) + dispatchSize * dispatchSize * dispatchSize * localSize * localSize * localSize * 5 * (sizeof(glm::vec4) * 3);
     unsigned int vertexSSBO = mcComp.CreateSSBO(bufferSize, 1, GL_DYNAMIC_DRAW);
 
     mcComp.use();
@@ -59,18 +59,18 @@ int main() {
     screen.shader.setInt("shadowMap", 0);
 
     while (!window.ShouldClose()) {
-        engineUpdates();
-        lightUpdates();
-
         densityComp.use();
-        densityComp.setFloat("time", timeValue);
+        densityComp.setFloat("time", timeValue / 7);
         densityComp.dispatch();
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         mcComp.ResetCounter(vertexSSBO);
         mcComp.use();
         mcComp.setFloat("surfaceLevel", 0.0);
-        mcComp.setFloat("time", timeValue);
+        mcComp.setFloat("time", timeValue / 7);
         mcComp.dispatch();
+
+        engineUpdates();
+        lightUpdates();
 
         // Shadow map rendering
         glCullFace(GL_BACK);
@@ -103,6 +103,7 @@ int main() {
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT |
                         GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
         mcm.Draw(camera, mcComp.ReadCounter(vertexSSBO));
+        cout << mcComp.ReadCounter(vertexSSBO) / 3 << endl;
         
         // screen.Draw(camera);
         window.PollEvents();
