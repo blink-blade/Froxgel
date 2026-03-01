@@ -15,12 +15,14 @@ layout(std430, binding = 1) buffer TriangleBuffer {
 };
 
 
-uniform int gridSize;
+uniform int gridSizeX;
+uniform int gridSizeY;
+uniform int gridSizeZ;
 uniform float surfaceLevel;
 
 uint index3D(uint x, uint y, uint z)
 {
-    return x + y * gridSize + z * gridSize * gridSize;
+    return x + y * gridSizeX + z * gridSizeX * gridSizeY;
 }
 
 vec3 interpolateVerts(vec3 p1, vec3 p2, float valp1, float valp2)
@@ -39,9 +41,9 @@ float GetValue(float x, float y, float z) {
         
 void main() {
     uvec3 id = gl_GlobalInvocationID;
-    if (id.x >= gridSize - 1 ||
-        id.y >= gridSize - 1 ||
-        id.z >= gridSize - 1)
+    if (id.x >= gridSizeX - 1 ||
+        id.y >= gridSizeY - 1 ||
+        id.z >= gridSizeZ - 1)
         return;
 
     float West = id.x; float East = id.x + 1.0;

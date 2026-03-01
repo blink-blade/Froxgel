@@ -18,25 +18,29 @@ using namespace std;
 int main() {
     engineInits();
 
-    int dispatchSize = 50;
+    int dispatchSizeX = 50; int dispatchSizeY = 15; int dispatchSizeZ = 50;
     int localSize = 4;
 
     ComputeShader densityComp;
     densityComp.init("density");
-    densityComp.setDispatchSize(dispatchSize, dispatchSize, dispatchSize);
-    size_t densityBufferSize = dispatchSize * dispatchSize * dispatchSize * localSize * localSize * localSize * sizeof(float);
+    densityComp.setDispatchSize(dispatchSizeX, dispatchSizeY, dispatchSizeZ);
+    size_t densityBufferSize = dispatchSizeX * dispatchSizeY * dispatchSizeZ * localSize * localSize * localSize * sizeof(float);
     unsigned int densitySSBO = densityComp.CreateSSBO(densityBufferSize, 0, GL_STATIC_DRAW);
 
     ComputeShader mcComp;
     mcComp.init("marching_cubes");
-    mcComp.setDispatchSize(dispatchSize, dispatchSize, dispatchSize);
-    size_t bufferSize = sizeof(glm::vec4) + dispatchSize * dispatchSize * dispatchSize * localSize * localSize * localSize * 5 * (sizeof(glm::vec4) * 3);
+    mcComp.setDispatchSize(dispatchSizeX, dispatchSizeY, dispatchSizeZ);
+    size_t bufferSize = sizeof(glm::vec4) + dispatchSizeX * dispatchSizeY * dispatchSizeZ * localSize * localSize * localSize * 3 * (sizeof(glm::vec4) * 3);
     unsigned int vertexSSBO = mcComp.CreateSSBO(bufferSize, 1, GL_DYNAMIC_DRAW);
 
     mcComp.use();
-    mcComp.setInt("gridSize", localSize * dispatchSize);
+    mcComp.setInt("gridSizeX", localSize * dispatchSizeX);
+    mcComp.setInt("gridSizeY", localSize * dispatchSizeY);
+    mcComp.setInt("gridSizeZ", localSize * dispatchSizeZ);
     densityComp.use();
-    densityComp.setInt("gridSize", localSize * dispatchSize);
+    densityComp.setInt("gridSizeX", localSize * dispatchSizeX);
+    densityComp.setInt("gridSizeY", localSize * dispatchSizeY);
+    densityComp.setInt("gridSizeZ", localSize * dispatchSizeZ);
 
     MarchingCubes mc = MarchingCubes(0.2, 5);
     vector<float> vertices = mc.GenerateVertices();
