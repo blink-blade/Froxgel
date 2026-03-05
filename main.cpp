@@ -18,7 +18,7 @@ using namespace std;
 int main() {
     engineInits();
 
-    int dispatchSizeX = 50; int dispatchSizeY = 15; int dispatchSizeZ = 50;
+    int dispatchSizeX = 50; int dispatchSizeY = 50; int dispatchSizeZ = 50;
     int localSize = 4;
 
     ComputeShader densityComp;
@@ -69,7 +69,7 @@ int main() {
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         mcComp.ResetCounter(vertexSSBO);
         mcComp.use();
-        mcComp.setFloat("surfaceLevel", 0.0);
+        mcComp.setFloat("surfaceLevel", 0.5);
         mcComp.setFloat("time", timeValue / 7);
         mcComp.dispatch();
 
