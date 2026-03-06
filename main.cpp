@@ -65,6 +65,7 @@ int main() {
     while (!window.ShouldClose()) {
         densityComp.use();
         densityComp.setFloat("time", timeValue / 7);
+        densityComp.setFloat("surfaceLevel", 0.1);
         densityComp.dispatch();
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         mcComp.ResetCounter(vertexSSBO);
