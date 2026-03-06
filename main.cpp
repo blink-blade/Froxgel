@@ -69,7 +69,7 @@ int main() {
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         mcComp.ResetCounter(vertexSSBO);
         mcComp.use();
-        mcComp.setFloat("surfaceLevel", 0.5);
+        mcComp.setFloat("surfaceLevel", 0.1);
         mcComp.setFloat("time", timeValue / 7);
         mcComp.dispatch();
 

@@ -53,7 +53,7 @@ void main()
 //    density[index] = (sin(id.x / 10) + sin((id.y + time) / 10) + sin(id.z / 10));
 //    float noise = layeredNoise3D(id.x + time * 200, id.y, id.z, 2, 0.01);
 //    noise -= (surfaceLevel - id.y) / 50;
-    vec3 coord = (vec3(id) / float(max(gridSizeX, max(gridSizeY, gridSizeZ))) * 2.0 - 1.0) * 5;
+    vec3 coord = (vec3(id) / float(max(gridSizeX, max(gridSizeY, gridSizeZ))) * 2.0 - 1.0) * 1.5;
     float iterations = computeIterationsSmooth(coord.xy, coord.xy, 500);
     density[index] = iterations / 500;
 }
