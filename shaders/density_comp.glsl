@@ -7,6 +7,7 @@ layout(std430, binding = 0) buffer DensityBuffer {
 uniform int gridSizeX;
 uniform int gridSizeY;
 uniform int gridSizeZ;
+uniform int iterationCount;
 uniform float surfaceLevel;
 
 uint index3D(uint x, uint y, uint z)
@@ -77,7 +78,7 @@ void main()
 //    noise -= (surfaceLevel - id.y) / 50;
     vec3 coord = (vec3(id) / float(max(gridSizeX, max(gridSizeY, gridSizeZ))) * 2.0 - 1.0) * 1.5;
 
-    float iterations = computeIterationsSmooth3D(coord, coord, 5);
+    float iterations = computeIterationsSmooth3D(coord, coord, iterationCount);
 
-    density[index] = iterations / 5.0;
+    density[index] = iterations / iterationCount;
 }
