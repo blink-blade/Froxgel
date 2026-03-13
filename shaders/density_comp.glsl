@@ -27,18 +27,40 @@ float mod2(vec2 z) {
     return dot(z, z);  // x*x + y*y
 }
 
-// Computes sequence elements until mod exceeds threshold or max iteration is reached.
-float computeIterationsSmooth(vec2 z0, vec2 constant, int maxIterations) {
-    vec2 zn = z0;
+vec3 mandelbulbNext(vec3 z, vec3 c, float power)
+{
+    float r = length(z);
+
+    float theta = acos(z.z / r);
+    float phi = atan(z.y, z.x);
+
+    float zr = pow(r, power);
+
+    theta *= power;
+    phi *= power;
+
+    return zr * vec3(
+    sin(theta) * cos(phi),
+    sin(theta) * sin(phi),
+    cos(theta)
+    ) + c;
+}
+
+float computeIterationsSmooth3D(vec3 z0, vec3 c, int maxIterations)
+{
+    vec3 z = z0;
     int iteration = 0;
-    while (mod2(zn) < 4.0 && iteration < maxIterations) {
-        zn = computeNext(zn, constant);
+
+    while(length(z) < 4.0 && iteration < maxIterations)
+    {
+        z = mandelbulbNext(z, c, 8.0);
         iteration++;
     }
 
-    const float modi = sqrt(mod2(zn));
-    const float smooth_iteration = float(iteration) - log2(max(1.0f, log2(modi)));
-    return smooth_iteration;
+    float r = length(z);
+    float smoothV = float(iteration) - log2(log2(r));
+
+    return smoothV;
 }
 
 void main()
@@ -54,6 +76,8 @@ void main()
 //    float noise = layeredNoise3D(id.x + time * 200, id.y, id.z, 2, 0.01);
 //    noise -= (surfaceLevel - id.y) / 50;
     vec3 coord = (vec3(id) / float(max(gridSizeX, max(gridSizeY, gridSizeZ))) * 2.0 - 1.0) * 1.5;
-    float iterations = computeIterationsSmooth(coord.xy, coord.xy, 500);
-    density[index] = iterations / 500 * id.z;
+
+    float iterations = computeIterationsSmooth3D(coord, coord, 5);
+
+    density[index] = iterations / 5.0;
 }

@@ -113,9 +113,9 @@ void main() {
             vec4(0.992, 0.282, 0.203, 1.0)
         );
         vec3 normal = computeNormal(
-                vertexA.position.x, vertexA.position.y, vertexA.position.z,
+                vertexC.position.x, vertexC.position.y, vertexC.position.z,
                 vertexB.position.x, vertexB.position.y, vertexB.position.z,
-                vertexC.position.x, vertexC.position.y, vertexC.position.z
+                vertexA.position.x, vertexA.position.y, vertexA.position.z
         );
         vertexA.normal = vec4(normal, 1.0);
         vertexB.normal = vec4(normal, 1.0);
