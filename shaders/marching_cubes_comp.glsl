@@ -42,7 +42,7 @@ float GetValue(float x, float y, float z) {
 vec3 gradientColor(float value)
 {
     // Normalize density around the surface level
-    float t = clamp((value - surfaceLevel) * 4.0 + 0.5, 0.0, 1.0);
+    float t = clamp((value - surfaceLevel) * 16.0 + 0.5, 0.0, 1.0);
 
     // Hue range (blue → green → yellow → red)
     float hue = mix(0.6, 0.0, t);
