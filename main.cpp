@@ -67,12 +67,12 @@ int main() {
     densityComp.use();
     densityComp.setInt("iterationCount", 3);
     densityComp.setFloat("time", timeValue / 7);
-    densityComp.setFloat("surfaceLevel", 0.2);
+    densityComp.setFloat("surfaceLevel", 0.0);
     densityComp.dispatch();
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     mcComp.ResetCounter(vertexSSBO);
     mcComp.use();
-    mcComp.setFloat("surfaceLevel", 0.2);
+    mcComp.setFloat("surfaceLevel", -0.2);
     mcComp.setFloat("time", timeValue / 7);
     mcComp.dispatch();
     while (!window.ShouldClose()) {
