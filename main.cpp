@@ -65,7 +65,7 @@ int main() {
     screen.shader.use();
     screen.shader.setInt("shadowMap", 0);
     densityComp.use();
-    densityComp.setInt("iterationCount", 7);
+    densityComp.setInt("iterationCount", 3);
     densityComp.setFloat("time", timeValue / 7);
     densityComp.setFloat("surfaceLevel", 0.2);
     densityComp.dispatch();

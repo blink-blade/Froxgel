@@ -38,7 +38,27 @@ bool isGround(float value) {
 float GetValue(float x, float y, float z) {
     return density[index3D(uint(x), uint(y), uint(z))];
 }
-        
+
+vec3 gradientColor(float value)
+{
+    // Normalize density around the surface level
+    float t = clamp((value - surfaceLevel) * 4.0 + 0.5, 0.0, 1.0);
+
+    // Hue range (blue → green → yellow → red)
+    float hue = mix(0.6, 0.0, t);
+
+    return hsv2rgb(vec3(hue, 0.8, 1.0));
+}
+
+vec3 gradientColorHeight(float y)
+{
+    float t = clamp(y / float(gridSizeY), 0.0, 1.0);
+
+    float hue = mix(0.65, 0.05, t);
+
+    return hsv2rgb(vec3(hue, 0.85, 1.0));
+}
+
 void main() {
     uvec3 id = gl_GlobalInvocationID;
     if (id.x >= gridSizeX - 1 ||
@@ -100,17 +120,17 @@ void main() {
         Vertex vertexA = Vertex(
             vec4(interpolateVerts(corners[a0], corners[b0], levels[a0], levels[b0]), 1.0) / 8,
             vec4(1.0, 1.0, 1.0, 1.0),
-            vec4(0.992, 0.282, 0.203, 1.0)
+            vec4(gradientColor(levels[a0]), 1.0)
         );
         Vertex vertexB = Vertex(
             vec4(interpolateVerts(corners[a1], corners[b1], levels[a1], levels[b1]), 1.0) / 8,
             vec4(1.0, 1.0, 1.0, 1.0),
-            vec4(0.992, 0.282, 0.203, 1.0)
+            vec4(gradientColor(levels[a1]), 1.0)
         );
         Vertex vertexC = Vertex(
             vec4(interpolateVerts(corners[a2], corners[b2], levels[a2], levels[b2]), 1.0) / 8,
             vec4(1.0, 1.0, 1.0, 1.0),
-            vec4(0.992, 0.282, 0.203, 1.0)
+            vec4(gradientColor(levels[a2]), 1.0)
         );
         vec3 normal = computeNormal(
                 vertexC.position.x, vertexC.position.y, vertexC.position.z,
