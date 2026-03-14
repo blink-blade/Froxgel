@@ -50,14 +50,14 @@ vec3 gradientColor(float value)
     return hsv2rgb(vec3(hue, 0.8, 1.0));
 }
 
-vec3 gradientColorHeight(float y)
-{
-    float t = clamp(y / float(gridSizeY), 0.0, 1.0);
-
-    float hue = mix(0.65, 0.05, t);
-
-    return hsv2rgb(vec3(hue, 0.85, 1.0));
-}
+//vec3 gradientColorHeight(float y)
+//{
+//    float t = clamp(y / float(gridSizeY), 0.0, 1.0);
+//
+//    float hue = mix(0.65, 0.05, t);
+//
+//    return hsv2rgb(vec3(hue, 0.85, 1.0));
+//}
 
 void main() {
     uvec3 id = gl_GlobalInvocationID;
