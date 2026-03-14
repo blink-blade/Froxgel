@@ -18,7 +18,7 @@ using namespace std;
 int main() {
     engineInits();
 
-    int dispatchSizeX = 250; int dispatchSizeY = 250; int dispatchSizeZ = 250;
+    int dispatchSizeX = 200; int dispatchSizeY = 200; int dispatchSizeZ = 200;
     int localSize = 4;
 
     ComputeShader densityComp;
@@ -30,18 +30,20 @@ int main() {
     ComputeShader mcComp;
     mcComp.init("marching_cubes");
     mcComp.setDispatchSize(dispatchSizeX, dispatchSizeY, dispatchSizeZ);
-    size_t bufferSize = sizeof(glm::vec4) + dispatchSizeX * dispatchSizeY * dispatchSizeZ * localSize * localSize * localSize * 1 * (sizeof(float));
+    size_t bufferSize = sizeof(glm::vec4) + dispatchSizeX * dispatchSizeY * dispatchSizeZ * localSize * localSize * localSize * 2 * (sizeof(float));
     unsigned int vertexSSBO = mcComp.CreateSSBO(bufferSize, 1, GL_DYNAMIC_DRAW);
 
     mcComp.use();
+    mcComp.setInt("localSize", localSize);
     mcComp.setInt("gridSizeX", localSize * dispatchSizeX);
     mcComp.setInt("gridSizeY", localSize * dispatchSizeY);
     mcComp.setInt("gridSizeZ", localSize * dispatchSizeZ);
     densityComp.use();
+
+    densityComp.setInt("localSize", localSize);
     densityComp.setInt("gridSizeX", localSize * dispatchSizeX);
     densityComp.setInt("gridSizeY", localSize * dispatchSizeY);
     densityComp.setInt("gridSizeZ", localSize * dispatchSizeZ);
-    densityComp.setInt("iterationCount", 10);
 
     MarchingCubes mc = MarchingCubes(0.2, 5);
     vector<float> vertices = mc.GenerateVertices();
@@ -63,6 +65,7 @@ int main() {
     screen.shader.use();
     screen.shader.setInt("shadowMap", 0);
     densityComp.use();
+    densityComp.setInt("iterationCount", 7);
     densityComp.setFloat("time", timeValue / 7);
     densityComp.setFloat("surfaceLevel", 0.2);
     densityComp.dispatch();
