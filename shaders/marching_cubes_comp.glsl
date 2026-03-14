@@ -1,4 +1,4 @@
-layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
+layout(local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
 layout(std430, binding = 0) readonly buffer DensityBuffer {
     float density[];
 };
@@ -18,11 +18,62 @@ layout(std430, binding = 1) buffer TriangleBuffer {
 uniform int gridSizeX;
 uniform int gridSizeY;
 uniform int gridSizeZ;
+uniform int localSize;
+uniform int iterationCount;
 uniform float surfaceLevel;
 
 uint index3D(uint x, uint y, uint z)
 {
     return x + y * gridSizeX + z * gridSizeX * gridSizeY;
+}
+
+// Compute Zn^2 + C.
+vec2 computeNext(vec2 current, vec2 constant) {
+    // Zn^2
+    const float zr = current.x * current.x - current.y * current.y;
+    const float zi = 2.0 * current.x * current.y;
+
+    return vec2(zr, zi) + constant;
+}
+
+float mod2(vec2 z) {
+    return dot(z, z);  // x*x + y*y
+}
+
+vec3 mandelbulbNext(vec3 z, vec3 c, float power)
+{
+    float r = length(z);
+
+    float theta = acos(z.z / r);
+    float phi = atan(z.y, z.x);
+
+    float zr = pow(r, power);
+
+    theta *= power;
+    phi *= power;
+
+    return zr * vec3(
+    sin(theta) * cos(phi),
+    sin(theta) * sin(phi),
+    cos(theta)
+    ) + c;
+}
+
+float computeIterationsSmooth3D(vec3 z0, vec3 c, int maxIterations)
+{
+    vec3 z = z0;
+    int iteration = 0;
+
+    while(length(z) < 4.0 && iteration < maxIterations)
+    {
+        z = mandelbulbNext(z, c, 8.0);
+        iteration++;
+    }
+
+    float r = length(z);
+    float smoothV = float(iteration) - log2(log2(r));
+
+    return smoothV;
 }
 
 vec3 interpolateVerts(vec3 p1, vec3 p2, float valp1, float valp2)
@@ -36,13 +87,15 @@ bool isGround(float value) {
 }
 
 float GetValue(float x, float y, float z) {
-    return density[index3D(uint(x), uint(y), uint(z))];
+    vec3 coord = (vec3(x, y, z) / float(max(gridSizeX, max(gridSizeY, gridSizeZ))) * 2.0 - 1.0) * 1.3;
+    float iterations = computeIterationsSmooth3D(coord, coord, iterationCount);
+    return iterations / iterationCount;
 }
 
 vec3 gradientColor(float value)
 {
     // Normalize density around the surface level
-    float t = clamp((value - surfaceLevel) * 16.0 + 0.5, 0.0, 1.0);
+    float t = clamp((value - surfaceLevel) * 8.0, 0.0, 1.0);
 
     // Hue range (blue → green → yellow → red)
     float hue = mix(0.6, 0.0, t);

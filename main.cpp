@@ -18,19 +18,13 @@ using namespace std;
 int main() {
     engineInits();
 
-    int dispatchSizeX = 200; int dispatchSizeY = 200; int dispatchSizeZ = 200;
+    int dispatchSizeX = 325; int dispatchSizeY = 325; int dispatchSizeZ = 325;
     int localSize = 4;
-
-    ComputeShader densityComp;
-    densityComp.init("density");
-    densityComp.setDispatchSize(dispatchSizeX, dispatchSizeY, dispatchSizeZ);
-    size_t densityBufferSize = dispatchSizeX * dispatchSizeY * dispatchSizeZ * localSize * localSize * localSize * sizeof(float);
-    unsigned int densitySSBO = densityComp.CreateSSBO(densityBufferSize, 0, GL_STATIC_DRAW);
 
     ComputeShader mcComp;
     mcComp.init("marching_cubes");
     mcComp.setDispatchSize(dispatchSizeX, dispatchSizeY, dispatchSizeZ);
-    size_t bufferSize = sizeof(glm::vec4) + dispatchSizeX * dispatchSizeY * dispatchSizeZ * localSize * localSize * localSize * 2 * (sizeof(float));
+    size_t bufferSize = 2048000000;
     unsigned int vertexSSBO = mcComp.CreateSSBO(bufferSize, 1, GL_DYNAMIC_DRAW);
 
     mcComp.use();
@@ -38,12 +32,6 @@ int main() {
     mcComp.setInt("gridSizeX", localSize * dispatchSizeX);
     mcComp.setInt("gridSizeY", localSize * dispatchSizeY);
     mcComp.setInt("gridSizeZ", localSize * dispatchSizeZ);
-    densityComp.use();
-
-    densityComp.setInt("localSize", localSize);
-    densityComp.setInt("gridSizeX", localSize * dispatchSizeX);
-    densityComp.setInt("gridSizeY", localSize * dispatchSizeY);
-    densityComp.setInt("gridSizeZ", localSize * dispatchSizeZ);
 
     MarchingCubes mc = MarchingCubes(0.2, 5);
     vector<float> vertices = mc.GenerateVertices();
@@ -64,15 +52,11 @@ int main() {
     Skybox skybox("vec3 vec3 vec2", skyboxVertices, "skybox", "skybox");
     screen.shader.use();
     screen.shader.setInt("shadowMap", 0);
-    densityComp.use();
-    densityComp.setInt("iterationCount", 3);
-    densityComp.setFloat("time", timeValue / 7);
-    densityComp.setFloat("surfaceLevel", 0.0);
-    densityComp.dispatch();
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     mcComp.ResetCounter(vertexSSBO);
     mcComp.use();
-    mcComp.setFloat("surfaceLevel", -0.2);
+    mcComp.setInt("iterationCount", 3);
+    mcComp.setFloat("surfaceLevel", 0.5);
     mcComp.setFloat("time", timeValue / 7);
     mcComp.dispatch();
     while (!window.ShouldClose()) {
