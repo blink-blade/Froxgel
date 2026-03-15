@@ -101,6 +101,10 @@ private:
                 vertexFormatSizes.push_back(sizeof(float) * 1.0f);
                 vertexFormatGroups.push_back(1);
             }
+            else if (term == "uint") {
+                vertexFormatSizes.push_back(sizeof(uint) * 1.0f);
+                vertexFormatGroups.push_back(1);
+            }
             else {
                 throw runtime_error("Unknown vertex format term");
             }
@@ -156,20 +160,44 @@ public:
     }
 
 private:
+private:
     void InitBuffers(unsigned int baseOffset) {
         glGenVertexArrays(1, &VAO);
         glBindVertexArray(VAO);
         glBindBuffer(GL_ARRAY_BUFFER, SSBO);
-        for (int i = 0; i < vertexFormatGroups.size(); ++i) {
-            int size = vertexFormatGroups[i];
-            int offset = 0;
-            if (i > 0) {
-                offset = std::accumulate(vertexFormatGroups.begin(), vertexFormatGroups.begin() + i, 0) * sizeof(float);
-            }
-            glVertexAttribPointer(i, size, GL_FLOAT, GL_FALSE, vertexStride, reinterpret_cast<void *>(baseOffset + offset));
-            glEnableVertexAttribArray(i);
-        }
 
+        int offsetBytes = baseOffset; // start from optional baseOffset
+
+        for (int i = 0; i < vertexFormatTerms.size(); ++i) {
+            int groupSize = vertexFormatGroups[i]; // number of components
+            string type = vertexFormatTerms[i];
+
+            if (type == "vec4" || type == "vec3" || type == "vec2" || type == "float") {
+                glVertexAttribPointer(
+                    i,
+                    groupSize,
+                    GL_FLOAT,
+                    GL_FALSE,
+                    vertexStride,
+                    reinterpret_cast<void*>(offsetBytes)
+                );
+            }
+            else if (type == "uint") {
+                glVertexAttribIPointer(
+                    i,
+                    groupSize,
+                    GL_UNSIGNED_INT,
+                    vertexStride,
+                    reinterpret_cast<void*>(offsetBytes)
+                );
+            }
+            else {
+                throw runtime_error("Unknown vertex type in VAO setup");
+            }
+
+            glEnableVertexAttribArray(i);
+            offsetBytes += vertexFormatSizes[i]; // increment offset by size in bytes
+        }
     }
     // Supported types: vec4, vec3, vec2, float
     void SetupVertexFormatSizes() {
@@ -188,6 +216,10 @@ private:
             }
             else if (term == "float") {
                 vertexFormatSizes.push_back(sizeof(float) * 1.0f);
+                vertexFormatGroups.push_back(1);
+            }
+            else if (term == "uint") {
+                vertexFormatSizes.push_back(sizeof(uint) * 1.0f);
                 vertexFormatGroups.push_back(1);
             }
             else {

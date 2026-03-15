@@ -25,7 +25,7 @@ int main() {
     mcComp.init("marching_cubes");
     mcComp.setDispatchSize(dispatchSizeX, dispatchSizeY, dispatchSizeZ);
     size_t bufferSize = 2048000000;
-    unsigned int vertexSSBO = mcComp.CreateSSBO(bufferSize, 1, GL_DYNAMIC_DRAW);
+    unsigned int vertexSSBO = mcComp.CreateSSBO(bufferSize, 0, GL_DYNAMIC_DRAW);
 
     mcComp.use();
     mcComp.setInt("localSize", localSize);
@@ -35,7 +35,7 @@ int main() {
 
     MarchingCubes mc = MarchingCubes(0.2, 5);
     vector<float> vertices = mc.GenerateVertices();
-    GPUMesh mcm("vec4 vec4 vec4", "simple_lighting", "simple_lighting", vertexSSBO, sizeof(glm::vec4));
+    GPUMesh mcm("vec3 vec3 vec3", "marching_cubes", "simple_lighting", vertexSSBO, 0);
     vertices = GenerateIsland(10, 50, 50, 5, 0.992f, 0.282f,  0.203f, 5.0, 3.0, 5.0, 0, -20, 0, 5);
     Mesh ground("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
     vertices = {

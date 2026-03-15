@@ -1,17 +1,13 @@
 layout(local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
-layout(std430, binding = 0) readonly buffer DensityBuffer {
-    float density[];
-};
-
 struct Vertex {
-    vec4 position;   // xyz + padding
-    vec4 normal;     // xyz + padding
-    vec4 color;      // rgb
+    vec3 position;   // xyz
+    vec3 normal;     // xyz
+    vec3 color;      // rgb
 };
 
-layout(std430, binding = 1) buffer TriangleBuffer {
-    uint vertexCount;
-    Vertex vertices[];
+layout(std430, binding = 0) buffer TriangleBuffer {
+    uint floatCount;
+    float vertices[];
 };
 
 
@@ -103,14 +99,18 @@ vec3 gradientColor(float value)
     return hsv2rgb(vec3(hue, 0.8, 1.0));
 }
 
-//vec3 gradientColorHeight(float y)
-//{
-//    float t = clamp(y / float(gridSizeY), 0.0, 1.0);
-//
-//    float hue = mix(0.65, 0.05, t);
-//
-//    return hsv2rgb(vec3(hue, 0.85, 1.0));
-//}
+// Adds the vertex to the list. This does not do the atomic addition.
+void addVertex(Vertex vertex, uint index) {
+    vertices[index] = vertex.position.x;
+    vertices[index + 1] = vertex.position.y;
+    vertices[index + 2] = vertex.position.z;
+    vertices[index + 3] = vertex.normal.x;
+    vertices[index + 4] = vertex.normal.y;
+    vertices[index + 5] = vertex.normal.z;
+    vertices[index + 6] = vertex.color.x;
+    vertices[index + 7] = vertex.color.y;
+    vertices[index + 8] = vertex.color.z;
+}
 
 void main() {
     uvec3 id = gl_GlobalInvocationID;
@@ -171,32 +171,32 @@ void main() {
         int b2 = cornerIndexBFromEdge[triangulation[i+2]];
 
         Vertex vertexA = Vertex(
-            vec4(interpolateVerts(corners[a0], corners[b0], levels[a0], levels[b0]), 1.0) / 8,
-            vec4(1.0, 1.0, 1.0, 1.0),
-            vec4(gradientColor(levels[a0]), 1.0)
+            vec3(interpolateVerts(corners[a0], corners[b0], levels[a0], levels[b0])) / 8,
+            vec3(1.0),
+            vec3(gradientColor(levels[a0]))
         );
         Vertex vertexB = Vertex(
-            vec4(interpolateVerts(corners[a1], corners[b1], levels[a1], levels[b1]), 1.0) / 8,
-            vec4(1.0, 1.0, 1.0, 1.0),
-            vec4(gradientColor(levels[a1]), 1.0)
+            vec3(interpolateVerts(corners[a1], corners[b1], levels[a1], levels[b1])) / 8,
+            vec3(1.0),
+            vec3(gradientColor(levels[a1]))
         );
         Vertex vertexC = Vertex(
-            vec4(interpolateVerts(corners[a2], corners[b2], levels[a2], levels[b2]), 1.0) / 8,
-            vec4(1.0, 1.0, 1.0, 1.0),
-            vec4(gradientColor(levels[a2]), 1.0)
+            vec3(interpolateVerts(corners[a2], corners[b2], levels[a2], levels[b2])) / 8,
+            vec3(1.0),
+            vec3(gradientColor(levels[a2]))
         );
         vec3 normal = computeNormal(
                 vertexC.position.x, vertexC.position.y, vertexC.position.z,
                 vertexB.position.x, vertexB.position.y, vertexB.position.z,
                 vertexA.position.x, vertexA.position.y, vertexA.position.z
         );
-        vertexA.normal = vec4(normal, 1.0);
-        vertexB.normal = vec4(normal, 1.0);
-        vertexC.normal = vec4(normal, 1.0);
+        vertexA.normal = vec3(normal);
+        vertexB.normal = vec3(normal);
+        vertexC.normal = vec3(normal);
 
-        uint baseIndex = atomicAdd(vertexCount, 3);
-        vertices[baseIndex] = vertexC;
-        vertices[baseIndex + 1] = vertexB;
-        vertices[baseIndex + 2] = vertexA;
+        uint baseIndex = atomicAdd(floatCount, 3 * 9);
+        addVertex(vertexC, baseIndex);
+        addVertex(vertexB, baseIndex + 9);
+        addVertex(vertexA, baseIndex + 18);
     }
 }
