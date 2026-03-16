@@ -18,7 +18,7 @@ using namespace std;
 int main() {
     engineInits();
 
-    int dispatchSizeX = 325; int dispatchSizeY = 325; int dispatchSizeZ = 325;
+    int dispatchSizeX = 350; int dispatchSizeY = 350; int dispatchSizeZ = 350;
     int localSize = 4;
 
     ComputeShader mcComp;
@@ -35,7 +35,7 @@ int main() {
 
     MarchingCubes mc = MarchingCubes(0.2, 5);
     vector<float> vertices = mc.GenerateVertices();
-    GPUMesh mcm("vec3 vec3 vec3", "marching_cubes", "simple_lighting", vertexSSBO, 0);
+    GPUMesh mcm("vec3 vec3 vec3", "marching_cubes", "simple_lighting", vertexSSBO, sizeof(unsigned int));
     vertices = GenerateIsland(10, 50, 50, 5, 0.992f, 0.282f,  0.203f, 5.0, 3.0, 5.0, 0, -20, 0, 5);
     Mesh ground("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
     vertices = {
@@ -85,7 +85,7 @@ int main() {
         glCullFace(GL_BACK);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         ground.SwitchShader("simple_lighting", "simple_lighting");
-        mcm.SwitchShader("simple_lighting", "simple_lighting");
+        mcm.SwitchShader("marching_cubes", "simple_lighting");
         ground.ShaderUniformUpdates();
         skybox.ShaderUniformUpdates();
         mcm.ShaderUniformUpdates();
