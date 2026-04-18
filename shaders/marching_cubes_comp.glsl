@@ -180,9 +180,9 @@ void main() {
         float valC = (levels[a2] + levels[b2]) * 0.5;
 
         vec3 color = gradientColor(valA, valB, valC);
-        Vertex vertexA = Vertex(posA, vec3(1.0), color);
-        Vertex vertexB = Vertex(posB, vec3(1.0), color);
-        Vertex vertexC = Vertex(posC, vec3(1.0), color);
+        Vertex vertexA = Vertex(posA, vec3(1.0), color + posA);
+        Vertex vertexB = Vertex(posB, vec3(1.0), color + posB);
+        Vertex vertexC = Vertex(posC, vec3(1.0), color + posC);
 
         vec3 normal = computeNormal(
             vertexC.position.x, vertexC.position.y, vertexC.position.z,
