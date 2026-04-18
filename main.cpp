@@ -18,7 +18,7 @@ using namespace std;
 int main() {
     engineInits();
 
-    int dispatchSizeX = 350; int dispatchSizeY = 350; int dispatchSizeZ = 350;
+    int dispatchSizeX = 200; int dispatchSizeY = 200; int dispatchSizeZ = 200;
     int localSize = 4;
 
     ComputeShader mcComp;
