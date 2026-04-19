@@ -18,7 +18,7 @@ using namespace std;
 int main() {
     engineInits();
 
-    int dispatchSizeX = 200; int dispatchSizeY = 200; int dispatchSizeZ = 200;
+    int dispatchSizeX = 25; int dispatchSizeY = 25; int dispatchSizeZ = 25;
     int localSize = 4;
 
     ComputeShader mcComp;
@@ -35,7 +35,7 @@ int main() {
 
     MarchingCubes mc = MarchingCubes(0.2, 5);
     vector<float> vertices = mc.GenerateVertices();
-    GPUMesh mcm("vec3 vec3 vec3", "marching_cubes", "simple_lighting", vertexSSBO, sizeof(unsigned int));
+    GPUMesh mcm("vec3 vec3 float", "marching_cubes", "marching_cubes", vertexSSBO, sizeof(unsigned int));
     vertices = GenerateIsland(10, 50, 50, 5, 0.992f, 0.282f,  0.203f, 5.0, 3.0, 5.0, 0, -20, 0, 5);
     Mesh ground("vec3 vec3 vec3", vertices, "simple_lighting", "simple_lighting");
     vertices = {
@@ -55,8 +55,8 @@ int main() {
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     mcComp.ResetCounter(vertexSSBO);
     mcComp.use();
-    mcComp.setInt("iterationCount", 3);
-    mcComp.setFloat("surfaceLevel", 0.5);
+    mcComp.setInt("iterationCount", 2);
+    mcComp.setFloat("surfaceLevel", 0.0);
     mcComp.setFloat("time", timeValue / 7);
     mcComp.dispatch();
     while (!window.ShouldClose()) {
@@ -85,7 +85,7 @@ int main() {
         glCullFace(GL_BACK);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         ground.SwitchShader("simple_lighting", "simple_lighting");
-        mcm.SwitchShader("marching_cubes", "simple_lighting");
+        mcm.SwitchShader("marching_cubes", "marching_cubes");
         ground.ShaderUniformUpdates();
         skybox.ShaderUniformUpdates();
         mcm.ShaderUniformUpdates();
